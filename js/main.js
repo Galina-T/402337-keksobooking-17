@@ -6,11 +6,12 @@ var PIN_X_MIN = mapPins.clientLeft;
 var PIN_X_MAX = mapPins.clientWidth;
 var PIN_Y_MIN = 130;
 var PIN_Y_MAX = 630;
+var PIN_WIDTH = 50;
+var PIN_HEIGHT = 70;
 
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
 
-var quantity = 8;
-var urlsImgs = shuffledArr(getNumsImgs(quantity));
+var QUANTITY = 8;
 
 var templatePin = document.querySelector('#pin')
   .content
@@ -33,7 +34,7 @@ function getRandomNumber(min, max) {
 * @param {object} arr массив, который необходимо отсортировать
 * @return {object} отсортированный массив.
 */
-function shuffledArr(arr) {
+function shuffleArr(arr) {
   for (var i = arr.length - 1; i > 0; i--) {
     var num = getRandomNumber(0, i);
     var temp = arr[num];
@@ -59,24 +60,24 @@ function getNumsImgs(n) {
 }
 
 /**
-* Генерирует объект, описывающий метку объявления
+* Генерирует объект, описывающий объявление
 *
-* @param {number} i индекс метки объявления в общем массиве
-* @return {object} обьект, описывающий метку.
+* @param {number} num номер адреса изображения метки объявления в общем массиве
+* @return {object} обьект, описывающий объявление.
 */
-function getPin(i) {
-  var obj = {};
-  obj.author = {
-    avatar: 'img/avatars/user' + urlsImgs[i] + '.png'
+function getAd(num) {
+  return {
+    author: {
+      avatar: 'img/avatars/user' + num + '.png'
+    },
+    offer: {
+      type: TYPES[getRandomNumber(0, TYPES.length - 1)]
+    },
+    location: {
+      x: getRandomNumber(PIN_X_MIN, PIN_X_MAX),
+      y: getRandomNumber(PIN_Y_MIN, PIN_Y_MAX)
+    }
   };
-  obj.offer = {
-    type: TYPES[getRandomNumber(0, TYPES.length - 1)]
-  };
-  obj.location = {
-    x: getRandomNumber(PIN_X_MIN, PIN_X_MAX),
-    y: getRandomNumber(PIN_Y_MIN, PIN_Y_MAX)
-  };
-  return obj;
 }
 
 /**
@@ -85,12 +86,9 @@ function getPin(i) {
 * @param {number} n количество объявлений для генерации
 * @return {object} массив из n сгенерированных объектов, описывающих похожие объявления неподалёку.
 */
-function getNotices(n) {
-  var arr = [];
-  for (var i = 0; i < n; i++) {
-    arr.push(getPin(i));
-  }
-  return arr;
+function getAds(n) {
+  var arr = shuffleArr(getNumsImgs(n));
+  return arr.map(getAd);
 }
 
 /**
@@ -102,8 +100,8 @@ function getNotices(n) {
 function renderPin(obj) {
   var pinNode = templatePin.cloneNode(true);
 
-  pinNode.style.left = obj.location.x - pinNode.clientWidth / 2 + 'px';
-  pinNode.style.top = obj.location.y - pinNode.clientHeight / 2 + 'px';
+  pinNode.style.left = obj.location.x - PIN_WIDTH / 2 + 'px';
+  pinNode.style.top = obj.location.y - PIN_HEIGHT + 'px';
   pinNode.querySelector('img').src = obj.author.avatar;
   pinNode.querySelector('img').alt = 'заголовок объявления';
 
@@ -111,18 +109,19 @@ function renderPin(obj) {
 }
 
 /**
-* Отрисовывает объявления на карте
+* Отрисовывает DOM Node объект
 *
-* @param {number} n количество объявлений для отрисовки
+* @param {number} arr объект, в котором содержатся данные для отрисовки
+* @param {number} renderFn функция подготовки DOM Node объекта
+* @param {number} attachNode узел прикрепления DOM Node объекта
 */
-function showNodes(n) {
-  var notices = getNotices(n);
+function showNodes(arr, renderFn, attachNode) {
   var fragment = document.createDocumentFragment();
 
-  for (var i = 0; i < notices.length; i++) {
-    fragment.appendChild(renderPin(notices[i]));
-  }
-  mapPins.appendChild(fragment);
+  arr.forEach(function (el) {
+    fragment.appendChild(renderFn(el));
+  });
+  attachNode.appendChild(fragment);
 }
 
 /**
@@ -132,9 +131,9 @@ function showNodes(n) {
 * @param {string} el селектор элемента, у которого удаляется класс
 * @param {string} className имя класса, который необходимо удалить
 */
-function setup(root, el, className) {
+function removeClassName(root, el, className) {
   root.querySelector(el).classList.remove(className);
 }
 
-showNodes(quantity);
-setup(document, '.map', 'map--faded');
+showNodes(getAds(QUANTITY), renderPin, mapPins);
+removeClassName(document, '.map', 'map--faded');
