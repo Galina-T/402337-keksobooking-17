@@ -46,8 +46,8 @@ var mapPinsCollection = map.getElementsByClassName('map__pin');
 var typeSelect = document.querySelector('#type');
 var priceInput = document.querySelector('#price');
 
-var timein = adForm.querySelector('#timein');
-var timeout = adForm.querySelector('#timeout');
+var timeOfArrival = adForm.querySelector('#timein');
+var checkOutTime = adForm.querySelector('#timeout');
 
 /**
 * Возвращает целое случайное число в диапазоне [min; max]
@@ -63,8 +63,8 @@ function getRandomNumber(min, max) {
 /**
 * Сортирует элементы внутри массива случайным образом
 *
-* @param {object} arr массив, который необходимо отсортировать
-* @return {object} отсортированный массив.
+* @param {number[]} arr массив, который необходимо отсортировать
+* @return {number[]} отсортированный массив.
 */
 function shuffleArr(arr) {
   var newArr = arr.slice(0);
@@ -81,7 +81,7 @@ function shuffleArr(arr) {
 * Генерирует массив с номерами для адресов изображений
 *
 * @param {number} n количество адресов изображений
-* @return {object} массив с номером для каждого адреса.
+* @return {number[]} массив с номером для каждого адреса.
 */
 function getNumsImgs(n) {
   var arr = [];
@@ -95,14 +95,13 @@ function getNumsImgs(n) {
 /**
 * Генерирует объект, описывающий объявление
 *
-* @param {number} num номер адреса изображения метки объявления в общем массиве
-* @param {number} idx индекс заголовка объявления
+* @param {number} numImg номер адреса изображения метки объявления в общем массиве
 * @return {object} обьект, описывающий объявление.
 */
-function getAd(num) {
+function generateAd(numImg) {
   return {
     author: {
-      avatar: 'img/avatars/user' + num + '.png'
+      avatar: 'img/avatars/user' + numImg + '.png'
     },
     offer: {
       type: Object.keys(TYPES)[getRandomNumber(0, Object.keys(TYPES).length - 1)].name,
@@ -118,25 +117,25 @@ function getAd(num) {
 * Генерирует массив с объявлениями
 *
 * @param {number} n количество объявлений для генерации
-* @return {object} массив из n сгенерированных объектов, описывающих похожие объявления неподалёку.
+* @return {object[]} массив из n сгенерированных объектов, описывающих похожие объявления неподалёку.
 */
-function getAds(n) {
+function generateAds(n) {
   var arr = shuffleArr(getNumsImgs(n));
-  return arr.map(getAd);
+  return arr.map(generateAd);
 }
 
 /**
 * Подготавливает DOM Node объект метки объявления
 *
-* @param {object} obj объект метки, сгенерированной `getAd`
-* @return {object} DOM Node метки объвления
+* @param {object} ad объект метки, сгенерированной `generateAd`
+* @return {HTMLElement} DOM Node метки объвления
 */
-function createPinNode(obj) {
+function createPinNode(ad) {
   var pinNode = templatePin.cloneNode(true);
 
-  pinNode.style.left = obj.location.x - PIN_WIDTH / 2 + 'px';
-  pinNode.style.top = obj.location.y - PIN_HEIGHT + 'px';
-  pinNode.querySelector('img').src = obj.author.avatar;
+  pinNode.style.left = ad.location.x - PIN_WIDTH / 2 + 'px';
+  pinNode.style.top = ad.location.y - PIN_HEIGHT + 'px';
+  pinNode.querySelector('img').src = ad.author.avatar;
   pinNode.querySelector('img').alt = 'заголовок объявления';
 
   return pinNode;
@@ -145,9 +144,9 @@ function createPinNode(obj) {
 /**
 * Отрисовывает DOM Node объект
 *
-* @param {number} arr объект, в котором содержатся данные для отрисовки
-* @param {number} createFn функция подготовки DOM Node объекта
-* @param {number} attachNode узел прикрепления DOM Node объекта
+* @param {object[]} arr массив, в котором содержатся данные для отрисовки
+* @param {Function} createFn функция подготовки DOM Node объекта
+* @param {HTMLElement} attachNode узел прикрепления DOM Node объекта
 */
 function renderNodes(arr, createFn, attachNode) {
   var fragment = document.createDocumentFragment();
@@ -162,7 +161,7 @@ function renderNodes(arr, createFn, attachNode) {
 * Приводит карту в активное состояние
 *
 */
-function getActiveMap() {
+function makeMapActive() {
   map.classList.remove('map--faded');
 }
 
@@ -170,7 +169,7 @@ function getActiveMap() {
 * Приводит карту в неактивное состояние
 *
 */
-function getInactiveMap() {
+function makeMapInactive() {
   map.classList.add('map--faded');
 }
 
@@ -178,7 +177,7 @@ function getInactiveMap() {
 * Приводит форму подачи заявления в активное состояние
 *
 */
-function getActiveForms() {
+function makeFormsActive() {
   adForm.classList.remove('ad-form--disabled');
   adForm.querySelectorAll('fieldset').forEach(function (el) {
     el.removeAttribute('disabled');
@@ -189,7 +188,7 @@ function getActiveForms() {
 * Блокирует форму подачи заявления
 *
 */
-function getInactiveForms() {
+function makeFormsInactive() {
   adForm.classList.add('ad-form--disabled');
   adForm.querySelectorAll('fieldset').forEach(function (el) {
     el.setAttribute('disabled', 'disabled');
@@ -200,7 +199,7 @@ function getInactiveForms() {
 * Приводит фильтры в активное состояние
 *
 */
-function getActiveFilters() {
+function makeFiltersActive() {
   mapFilters.querySelectorAll('select').forEach(function (el) {
     el.removeAttribute('disabled');
   });
@@ -213,7 +212,7 @@ function getActiveFilters() {
 * Блокирует фильтры
 *
 */
-function getInactiveFilters() {
+function makeFiltersInactive() {
   mapFilters.querySelectorAll('select').forEach(function (el) {
     el.setAttribute('disabled', 'disabled');
   });
@@ -222,29 +221,8 @@ function getInactiveFilters() {
   });
 }
 
-// запускает работу карты
-function setup() {
-  var ads = getAds(QUANTITY);
-  getActiveMap();
-  getActiveForms();
-  getActiveFilters();
-  renderNodes(ads, createPinNode, mapPins);
-
-  Array.prototype.forEach.call(mapPinsCollection, function (obj) {
-    obj.addEventListener('mousedown', onPinDrag);
-  });
-}
-
-// останавливает работу карты
-function deSetup() {
-  getInactiveMap();
-  getInactiveForms();
-  getInactiveFilters();
-  getAddressAdForm(mapPinMain);
-}
-
 // адресс в поле
-function getAddressAdForm(el) {
+function fillAddressFieldAdForm(el) {
   if (el.classList.contains('map__pin--main')) {
     adFormAddress.placeholder = (el.offsetLeft + el.clientWidth / 2) + ', ' + (el.offsetTop + el.scrollHeight);
   } else {
@@ -252,36 +230,91 @@ function getAddressAdForm(el) {
   }
 }
 
-// перетаскивание
-function onPinDrag(evt) {
-  evt.preventDefault();
+// запускает работу карты
+function setup() {
+  var ads = generateAds(QUANTITY);
+  makeMapActive();
+  makeFormsActive();
+  makeFiltersActive();
+  renderNodes(ads, createPinNode, mapPins);
 
-  var pin = evt.currentTarget;
+  Array.prototype.forEach.call(mapPinsCollection, function (obj) {
+    obj.addEventListener('mousedown', onPinDrag);
+  });
 
-  var startCoords = {
-    x: evt.clientX,
-    y: evt.clientY
-  };
+  typeSelect.addEventListener('input', function (evt) {
+    setupMinPriceValidation(evt.target);
+  });
 
-  var dragged = false;
+  priceInput.addEventListener('input', function (evt) {
+    evt.target.placeholder = evt.target.value;
+  });
 
-  function onMouseMove(moveEvt) {
+  timeOfArrival.addEventListener('input', function (evt) {
+    checkOutTime.value = evt.target.value;
+  });
+
+  checkOutTime.addEventListener('input', function (evt) {
+    timeOfArrival.value = evt.target.value;
+  });
+}
+
+// останавливает работу карты
+function tearDown() {
+  makeMapInactive();
+  makeFormsInactive();
+  makeFiltersInactive();
+  fillAddressFieldAdForm(mapPinMain);
+  setupMinPriceValidation(typeSelect);
+
+  typeSelect.removeEventListener('input', function (evt) {
+    setupMinPriceValidation(evt.target);
+  });
+
+  priceInput.removeEventListener('input', function (evt) {
+    evt.target.placeholder = evt.target.value;
+  });
+
+  timeOfArrival.removeEventListener('input', function (evt) {
+    checkOutTime.value = evt.target.value;
+  });
+
+  checkOutTime.removeEventListener('input', function (evt) {
+    timeOfArrival.value = evt.target.value;
+  });
+}
+
+function setupMinPriceValidation(el) {
+  priceInput.min = TYPES[el.value].priceMin;
+
+  var valueNumber = Number(priceInput.value);
+  var minNumber = Number(priceInput.min);
+
+  if (valueNumber < minNumber) {
+    priceInput.setCustomValidity('минимальная цена за ночь ' + minNumber);
+  } else {
+    priceInput.setCustomValidity('');
+  }
+}
+
+function makeOnMouseMove(config, pin) {
+  return function onMouseMove(moveEvt) {
     moveEvt.preventDefault();
-    dragged = true;
+    config.dragged = true;
 
     var shift = {
-      x: startCoords.x - moveEvt.clientX,
-      y: startCoords.y - moveEvt.clientY
+      x: config.startCoords.x - moveEvt.clientX,
+      y: config.startCoords.y - moveEvt.clientY,
     };
 
-    startCoords = {
+    config.startCoords = {
       x: moveEvt.clientX,
-      y: moveEvt.clientY
+      y: moveEvt.clientY,
     };
 
     var newStyle = {
       left: pin.offsetLeft - shift.x,
-      top: pin.offsetTop - shift.y
+      top: pin.offsetTop - shift.y,
     };
 
     if (
@@ -293,57 +326,45 @@ function onPinDrag(evt) {
       pin.style.left = newStyle.left + 'px';
       pin.style.top = newStyle.top + 'px';
     }
-    getAddressAdForm(pin);
-  }
+    fillAddressFieldAdForm(pin);
+  };
+}
 
-  function onMouseUp(upEvt) {
+function makeOnMouseUp(config, pin, onMouseMove) {
+  return function onMouseUp(upEvt) {
     upEvt.preventDefault();
 
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
 
-    if (dragged) {
+    if (config.dragged) {
       if (pin.classList.contains('map__pin--main') && map.classList.contains('map--faded')) {
         setup();
       }
     }
-  }
+  };
+}
+
+function onPinDrag(evt) {
+  evt.preventDefault();
+
+  var pin = evt.currentTarget;
+
+  var config = {
+    dragged: false,
+    startCoords: {
+      x: evt.clientX,
+      y: evt.clientY,
+    },
+  };
+
+  var onMouseMove = makeOnMouseMove(config, pin);
+  var onMouseUp = makeOnMouseUp(config, pin, onMouseMove);
 
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
 }
 
-deSetup();
-
-priceInput.min = TYPES[typeSelect.value].priceMin; // не придумала еще куда примкнуть
+tearDown();
 
 mapPinMain.addEventListener('mousedown', onPinDrag);
-
-// Валидация
-typeSelect.addEventListener('input', function (evt) {
-  priceInput.min = TYPES[evt.target.value].priceMin;
-
-  var valueNumber = Number(priceInput.value);
-  var minNumber = Number(priceInput.min);
-
-  if (valueNumber < minNumber) {
-    priceInput.setCustomValidity('минимальная цена за ночь ' + minNumber);
-  } else {
-    priceInput.setCustomValidity('');
-  }
-});
-
-// Изменение placeholder
-priceInput.addEventListener('input', function (evt) {
-  evt.target.placeholder = evt.target.value;
-});
-
-// выбор времени заезда
-timein.addEventListener('input', function (evt) {
-  timeout.value = evt.target.value;
-});
-
-// выбор времени выезда
-timeout.addEventListener('input', function (evt) {
-  timein.value = evt.target.value;
-});
