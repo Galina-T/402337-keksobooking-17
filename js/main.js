@@ -224,11 +224,7 @@ function makeFiltersInactive() {
 * @param {HTMLElement} el метка, для которой заполняется адрес
 */
 function fillAddressFieldAdForm(el) {
-  if (el.classList.contains('map__pin--main')) {
-    adFormAddress.placeholder = (el.offsetLeft + el.clientWidth / 2) + ', ' + (el.offsetTop + el.scrollHeight);
-  } else {
-    adFormAddress.placeholder = (el.offsetLeft + el.clientWidth / 2) + ', ' + (el.offsetTop + el.clientHeight);
-  }
+  adFormAddress.value = (el.offsetLeft + el.scrollWidth / 2) + ', ' + (el.offsetTop + el.scrollHeight);
 }
 
 // запускает работу страницы
