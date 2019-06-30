@@ -41,8 +41,6 @@ var templatePin = document.querySelector('#pin')
   .content
   .querySelector('.map__pin');
 
-var mapPinsCollection = map.getElementsByClassName('map__pin');
-
 var typeSelect = document.querySelector('#type');
 var priceInput = document.querySelector('#price');
 
@@ -63,8 +61,8 @@ function getRandomNumber(min, max) {
 /**
 * Сортирует элементы внутри массива случайным образом
 *
-* @param {number[]} arr массив, который необходимо отсортировать
-* @return {number[]} отсортированный массив.
+* @param {*[]} arr массив, который необходимо перемешать
+* @return {*[]} отсортированный массив.
 */
 function shuffleArr(arr) {
   var newArr = arr.slice(0);
@@ -80,12 +78,12 @@ function shuffleArr(arr) {
 /**
 * Генерирует массив с номерами для адресов изображений
 *
-* @param {number} n количество адресов изображений
+* @param {number} amountOfImages количество адресов изображений
 * @return {number[]} массив с номером для каждого адреса.
 */
-function getNumsImgs(n) {
+function getNumsImgs(amountOfImages) {
   var arr = [];
-  for (var i = 1; i < n + 1; i++) {
+  for (var i = 1; i < amountOfImages + 1; i++) {
     i = i < 10 ? '0' + i : i;
     arr.push(i);
   }
@@ -221,7 +219,10 @@ function makeFiltersInactive() {
   });
 }
 
-// адресс в поле
+/**
+* Заполняет поле адреса координатами метки
+* @param {HTMLElement} el метка, для которой заполняется адрес
+*/
 function fillAddressFieldAdForm(el) {
   if (el.classList.contains('map__pin--main')) {
     adFormAddress.placeholder = (el.offsetLeft + el.clientWidth / 2) + ', ' + (el.offsetTop + el.scrollHeight);
@@ -230,7 +231,7 @@ function fillAddressFieldAdForm(el) {
   }
 }
 
-// запускает работу карты
+// запускает работу страницы
 function setup() {
   var ads = generateAds(QUANTITY);
   makeMapActive();
@@ -238,16 +239,13 @@ function setup() {
   makeFiltersActive();
   renderNodes(ads, createPinNode, mapPins);
 
-  Array.prototype.forEach.call(mapPinsCollection, function (obj) {
-    obj.addEventListener('mousedown', onPinDrag);
-  });
-
   typeSelect.addEventListener('input', function (evt) {
+    setupMinPriceForField('placeholder');
     setupMinPriceValidation(evt.target);
   });
 
   priceInput.addEventListener('input', function (evt) {
-    evt.target.placeholder = evt.target.value;
+    setupMinPriceValidation(evt.target);
   });
 
   timeOfArrival.addEventListener('input', function (evt) {
@@ -259,20 +257,20 @@ function setup() {
   });
 }
 
-// останавливает работу карты
+// останавливает работу страницы
 function tearDown() {
   makeMapInactive();
   makeFormsInactive();
   makeFiltersInactive();
   fillAddressFieldAdForm(mapPinMain);
+
+  setupMinPriceForField('placeholder');
+
   setupMinPriceValidation(typeSelect);
 
   typeSelect.removeEventListener('input', function (evt) {
+    setupMinPriceForField(typeSelect, 'placeholder');
     setupMinPriceValidation(evt.target);
-  });
-
-  priceInput.removeEventListener('input', function (evt) {
-    evt.target.placeholder = evt.target.value;
   });
 
   timeOfArrival.removeEventListener('input', function (evt) {
@@ -284,8 +282,14 @@ function tearDown() {
   });
 }
 
-function setupMinPriceValidation(el) {
-  priceInput.min = TYPES[el.value].priceMin;
+/**
+* Настраивает валидацию минимальной цены определенного типа жилья
+* @param {HTMLElement} field поле валидации
+*/
+function setupMinPriceValidation(field) {
+  if (field === typeSelect) {
+    setupMinPriceForField('min');
+  }
 
   var valueNumber = Number(priceInput.value);
   var minNumber = Number(priceInput.min);
@@ -297,6 +301,32 @@ function setupMinPriceValidation(el) {
   }
 }
 
+/**
+* Записывает значение минимальной цены, выбранного типа жилья, в необходимое свойство
+* @param {string} property свойство, в которое записывается минимальная цена
+*/
+function setupMinPriceForField(property) {
+  priceInput[property] = TYPES[typeSelect.value].priceMin;
+}
+
+/**
+ * Проверяет вышла ли метка за границы карты
+ *
+ * @param {{left: number, top: number}} style объект с координатами метки
+ * @param {HTMLElement} pin метка
+ * @return {boolean} true
+ */
+function isPinOutside(style, pin) {
+  return (style.left < (PIN_X_MIN - pin.scrollWidth / 2) || style.left > (PIN_X_MAX - pin.scrollWidth / 2))
+  || (style.top < (PIN_Y_MIN - pin.scrollHeight) || style.top > PIN_Y_MAX);
+}
+
+/**
+ * создает функцию-обработчик для движения мыши
+ * @param {{dragged: boolean, startCoords: {x: number, y: number}}} config
+ * @param {HTMLElement} pin метка, которую перемещаем
+ * @return {Function} onMouseMove функцию-обработчик движения мыши
+ */
 function makeOnMouseMove(config, pin) {
   return function onMouseMove(moveEvt) {
     moveEvt.preventDefault();
@@ -317,10 +347,7 @@ function makeOnMouseMove(config, pin) {
       top: pin.offsetTop - shift.y,
     };
 
-    if (
-      (newStyle.left < (PIN_X_MIN - PIN_WIDTH / 2) || newStyle.left > (PIN_X_MAX - PIN_WIDTH / 2))
-      || (newStyle.top < (PIN_Y_MIN - PIN_HEIGHT) || newStyle.top > PIN_Y_MAX)
-    ) {
+    if (isPinOutside(newStyle, pin)) {
       return;
     } else {
       pin.style.left = newStyle.left + 'px';
@@ -330,7 +357,13 @@ function makeOnMouseMove(config, pin) {
   };
 }
 
-function makeOnMouseUp(config, pin, onMouseMove) {
+/**
+ * создает функцию-обработчик для движения мыши
+ * @param {{dragged: boolean, startCoords: {x: number, y: number}}} config
+ * @param {Function} onMouseMove функцию-обработчик движения мыши
+ * @return {Function} onMouseUp функцию-обработчик остановки движения мыши при ненажатой кнопке мыши
+ */
+function makeOnMouseUp(config, onMouseMove) {
   return function onMouseUp(upEvt) {
     upEvt.preventDefault();
 
@@ -338,7 +371,7 @@ function makeOnMouseUp(config, pin, onMouseMove) {
     document.removeEventListener('mouseup', onMouseUp);
 
     if (config.dragged) {
-      if (pin.classList.contains('map__pin--main') && map.classList.contains('map--faded')) {
+      if (map.classList.contains('map--faded')) {
         setup();
       }
     }
@@ -354,12 +387,12 @@ function onPinDrag(evt) {
     dragged: false,
     startCoords: {
       x: evt.clientX,
-      y: evt.clientY,
-    },
+      y: evt.clientY
+    }
   };
 
   var onMouseMove = makeOnMouseMove(config, pin);
-  var onMouseUp = makeOnMouseUp(config, pin, onMouseMove);
+  var onMouseUp = makeOnMouseUp(config, onMouseMove);
 
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
