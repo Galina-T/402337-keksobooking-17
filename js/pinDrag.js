@@ -19,9 +19,10 @@
    * создает функцию-обработчик для движения мыши
    * @param {{dragged: boolean, startCoords: {x: number, y: number}}} config
    * @param {HTMLElement} pin метка, которую перемещаем
+   * @param {Function} cb функция-callback
    * @return {Function} onMouseMove функция-обработчик движения мыши
    */
-  function makeOnMouseMove(config, pin) {
+  function makeOnMouseMove(config, pin, cb) {
     return function onMouseMove(moveEvt) {
       moveEvt.preventDefault();
       config.dragged = true;
@@ -47,7 +48,7 @@
         pin.style.left = newStyle.left + 'px';
         pin.style.top = newStyle.top + 'px';
       }
-      window.validationForm.fillAddressFieldAdForm(pin);
+      cb(pin);
     };
   }
 
@@ -55,9 +56,10 @@
    * создает функцию-обработчик остановки движения мыши при ненажатой кнопке мыши
    * @param {{dragged: boolean, startCoords: {x: number, y: number}}} config
    * @param {Function} onMouseMove функция-обработчик движения мыши
+   * @param {Function} cb функция-callback
    * @return {Function} onMouseUp функция-обработчик остановки движения мыши при ненажатой кнопке мыши
    */
-  function makeOnMouseUp(config, onMouseMove) {
+  function makeOnMouseUp(config, onMouseMove, cb) {
     return function onMouseUp(upEvt) {
       upEvt.preventDefault();
 
@@ -66,33 +68,33 @@
 
       if (config.dragged) {
         if (map.classList.contains('map--faded')) {
-          window.setup.startPageWork();
+          cb();
         }
       }
     };
   }
 
-  function onPinDrag(evt) {
-    evt.preventDefault();
+  function makeOnPinDrag(cbMouseMove, cbMouseUp) {
+    return function onPinDrag(evt) {
+      evt.preventDefault();
+      var pin = evt.currentTarget;
+      var config = {
+        dragged: false,
+        startCoords: {
+          x: evt.clientX,
+          y: evt.clientY
+        }
+      };
 
-    var pin = evt.currentTarget;
+      var onMouseMove = makeOnMouseMove(config, pin, cbMouseMove);
+      var onMouseUp = makeOnMouseUp(config, onMouseMove, cbMouseUp);
 
-    var config = {
-      dragged: false,
-      startCoords: {
-        x: evt.clientX,
-        y: evt.clientY
-      }
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
     };
-
-    var onMouseMove = makeOnMouseMove(config, pin);
-    var onMouseUp = makeOnMouseUp(config, onMouseMove);
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
   }
 
   window.pinDrag = {
-    onPinDrag: onPinDrag,
+    makeOnPinDrag: makeOnPinDrag,
   };
 })();
