@@ -10,7 +10,11 @@ window.constants = (function () {
     PIN_Y_MAX: 630,
     PIN_WIDTH: 50,
     PIN_HEIGHT: 70,
+    PIN_MAIN_LEFT: 570,
+    PIN_MAIN_TOP: 375,
     QUANTITY: 8,
+    ESC_KEYCODE: 27,
+    ENTER_KEYCODE: 13,
     TYPES: {
       palace: {
         name: 'Дворец',

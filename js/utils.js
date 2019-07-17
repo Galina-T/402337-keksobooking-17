@@ -1,12 +1,6 @@
 'use strict';
 
 window.util = (function () {
-  var map = document.querySelector('.map');
-  var mapFilters = map.querySelector('.map__filters');
-
-  var notice = document.querySelector('.notice');
-  var adForm = notice.querySelector('.ad-form');
-
   return {
     /**
     * Возвращает целое случайное число в диапазоне [min; max]
@@ -49,62 +43,36 @@ window.util = (function () {
       return arr;
     },
     /**
-    * Приводит карту в активное состояние
+    * Удаляет объявления из DOM
     *
+    * @param {HTMLElement[]} arr массив элементов, которые хотим удалить
     */
-    makeMapActive: function () {
-      map.classList.remove('map--faded');
+    removeAds: function (arr) {
+      for (var i = arr.length - 1; i >= 0; i--) {
+        if (arr[i].classList.contains('map__pin--main')) {
+          return;
+        }
+        var child = arr[i];
+
+        child.parentElement.removeChild(child);
+      }
     },
     /**
-    * Приводит карту в неактивное состояние
+    * Устанавливает полю исходное значение
     *
+    * @param {HTMLElement} field поле формы
     */
-    makeMapInactive: function () {
-      map.classList.add('map--faded');
-    },
-    /**
-    * Приводит форму подачи заявления в активное состояние
-    *
-    */
-    makeFormsActive: function () {
-      adForm.classList.remove('ad-form--disabled');
-      adForm.querySelectorAll('fieldset').forEach(function (el) {
-        el.removeAttribute('disabled');
+    setupSelectedDefault: function (field) {
+      field.querySelectorAll('option').forEach(function (el) {
+        if (el.hasAttribute('selected')) {
+          field.value = el.value;
+        }
       });
     },
-    /**
-    * Блокирует форму подачи заявления
-    *
-    */
-    makeFormsInactive: function () {
-      adForm.classList.add('ad-form--disabled');
-      adForm.querySelectorAll('fieldset').forEach(function (el) {
-        el.setAttribute('disabled', 'disabled');
+    setupCheckedDefault: function (field) {
+      field.querySelectorAll('input').forEach(function (el) {
+        el.checked = el.hasAttribute('checked') ? true : false;
       });
-    },
-    /**
-    * Приводит фильтры в активное состояние
-    *
-    */
-    makeFiltersActive: function () {
-      mapFilters.querySelectorAll('select').forEach(function (el) {
-        el.removeAttribute('disabled');
-      });
-      mapFilters.querySelectorAll('fieldset').forEach(function (el) {
-        el.removeAttribute('disabled');
-      });
-    },
-    /**
-    * Блокирует фильтры
-    *
-    */
-    makeFiltersInactive: function () {
-      mapFilters.querySelectorAll('select').forEach(function (el) {
-        el.setAttribute('disabled', 'disabled');
-      });
-      mapFilters.querySelectorAll('fieldset').forEach(function (el) {
-        el.setAttribute('disabled', 'disabled');
-      });
-    },
+    }
   };
 })();

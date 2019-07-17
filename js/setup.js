@@ -5,18 +5,19 @@
 
   // запускает работу страницы
   function startPageWork() {
-    var ads = window.generate.generateAds(window.constants.QUANTITY);
+    window._map.makeMapActive();
+    window.form.makeFormsActive();
+    window.filter.makeFiltersActive();
 
-    window.util.makeMapActive();
-    window.util.makeFormsActive();
-    window.util.makeFiltersActive();
+    window.filter.resetFilters(window.data.listAdsCopy);
 
-    window.addDom.renderNodes(ads, window.createNode.createPinNode, mapPins);
+    window.addDom.renderNodes(window.data.listAdsCopy, window.pin.createPinNode, mapPins, window._map.addPinHandlers);
+    window.addDom.renderNodes(window.data.listAdsCopy, window.card.createCardNode, mapPins, window._map.addCardHandlers);
 
-    window.validationForm.addHandlersForm();
+    window.form.addHandlersForm();
   }
 
   window.setup = {
-    startPageWork: startPageWork,
+    startPageWork: startPageWork
   };
 })();
