@@ -8,11 +8,13 @@
   /**
   * Подготавливает DOM Node объект метки объявления
   *
-  * @param {object} ad объект метки, сгенерированной `generateAd`
+  * @param {object} ad объект объявления, полученный с сервера
   * @return {HTMLElement} DOM Node метки объвления
   */
   function createPinNode(ad) {
     var pinNode = templatePin.cloneNode(true);
+
+    pinNode.setAttribute('id', 'pin-' + ad.id);
 
     pinNode.style.left = ad.location.x - window.constants.PIN_WIDTH / 2 + 'px';
     pinNode.style.top = ad.location.y - window.constants.PIN_HEIGHT + 'px';
@@ -22,7 +24,7 @@
     return pinNode;
   }
 
-  window.createNode = {
-    createPinNode: createPinNode,
+  window.pin = {
+    createPinNode: createPinNode
   };
 })();
