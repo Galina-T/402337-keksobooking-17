@@ -1,18 +1,19 @@
 'use strict';
 
 window.constants = (function () {
-  var mapPins = document.querySelector('.map__pins');
+  var cityMap = document.querySelector('.map__pins');
+  var mapPinMain = document.querySelector('.map__pin--main');
 
   return {
-    PIN_X_MIN: mapPins.clientLeft,
-    PIN_X_MAX: mapPins.clientWidth,
+    PIN_MAIN_LEFT: mapPinMain.offsetLeft,
+    PIN_MAIN_TOP: mapPinMain.offsetTop,
+    PIN_X_MIN: cityMap.clientLeft,
+    PIN_X_MAX: cityMap.clientWidth,
     PIN_Y_MIN: 130,
     PIN_Y_MAX: 630,
     PIN_WIDTH: 50,
     PIN_HEIGHT: 70,
-    PIN_MAIN_LEFT: 570,
-    PIN_MAIN_TOP: 375,
-    QUANTITY: 8,
+    QUANTITY: 5,
     ESC_KEYCODE: 27,
     ENTER_KEYCODE: 13,
     TYPES: {

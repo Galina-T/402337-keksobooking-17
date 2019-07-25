@@ -1,14 +1,14 @@
 'use strict';
 
 (function () {
-  var map = document.querySelector('.map');
+  var cityMap = document.querySelector('.map');
 
   /**
    * Проверяет вышла ли метка за границы карты
    *
    * @param {{left: number, top: number}} style объект с координатами метки
    * @param {HTMLElement} pin метка
-   * @return {boolean} true
+   * @return {boolean} boolean
    */
   function isPinOutside(style, pin) {
     return (style.left < (window.constants.PIN_X_MIN - pin.scrollWidth / 2) || style.left > (window.constants.PIN_X_MAX - pin.scrollWidth / 2))
@@ -16,10 +16,10 @@
   }
 
   /**
-   * создает функцию-обработчик для движения мыши
-   * @param {{dragged: boolean, startCoords: {x: number, y: number}}} config
+   *
+   * @param {{dragged: boolean, startCoords: {x: number, y: number}}} config объект, описывающий параметры перемещения
    * @param {HTMLElement} pin метка, которую перемещаем
-   * @param {Function} cb функция-callback
+   * @param {Function} cb функция-callback, запускаемая при движении мыши
    * @return {Function} onMouseMove функция-обработчик движения мыши
    */
   function makeOnMouseMove(config, pin, cb) {
@@ -53,10 +53,10 @@
   }
 
   /**
-   * создает функцию-обработчик остановки движения мыши при ненажатой кнопке мыши
-   * @param {{dragged: boolean, startCoords: {x: number, y: number}}} config
+   *
+   * @param {{dragged: boolean, startCoords: {x: number, y: number}}} config объект, описывающий параметры перемещения
    * @param {Function} onMouseMove функция-обработчик движения мыши
-   * @param {Function} cb функция-callback
+   * @param {Function} cb функция-callback, запускаемая при mouseUp
    * @return {Function} onMouseUp функция-обработчик остановки движения мыши при ненажатой кнопке мыши
    */
   function makeOnMouseUp(config, onMouseMove, cb) {
@@ -67,13 +67,19 @@
       document.removeEventListener('mouseup', onMouseUp);
 
       if (config.dragged) {
-        if (map.classList.contains('map--faded')) {
+        if (cityMap.classList.contains('map--faded')) {
           cb();
         }
       }
     };
   }
 
+  /**
+   *
+   * @param {Function} cbMouseMove функция-callback, запускаемая при mouseUp
+   * @param {Function} cbMouseUp функция-callback, запускаемая при mouseMove
+   * @return {Function} onPinDrag функция-обработчик перемещения метки
+   */
   function makeOnPinDrag(cbMouseMove, cbMouseUp) {
     return function onPinDrag(evt) {
       evt.preventDefault();

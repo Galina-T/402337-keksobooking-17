@@ -1,6 +1,24 @@
 'use strict';
 
 (function () {
+  /**
+  * @typedef   {{author: {avatar: string},
+  *              offer: {title: string,
+  *                     address: string,
+  *                     price: number,
+  *                     type: string,
+  *                     rooms: number,
+  *                     guests: number,
+  *                     checkin: string,
+  *                     checkout: string,
+  *                     features: string[],
+  *                     description: string,
+  *                     photos: string[]},
+  *             location: {x: number,
+  *                        y: number},
+  *             show: boolean}} ad
+  */
+
   var templatePin = document.querySelector('#pin')
   .content
   .querySelector('.map__pin');
@@ -8,7 +26,7 @@
   /**
   * Подготавливает DOM Node объект метки объявления
   *
-  * @param {object} ad объект объявления, полученный с сервера
+  * @param {ad} ad объект объявления
   * @return {HTMLElement} DOM Node метки объвления
   */
   function createPinNode(ad) {

@@ -1,18 +1,37 @@
 'use strict';
 
 (function () {
+  /**
+  * @typedef   {{author: {avatar: string},
+  *              offer: {title: string,
+  *                     address: string,
+  *                     price: number,
+  *                     type: string,
+  *                     rooms: number,
+  *                     guests: number,
+  *                     checkin: string,
+  *                     checkout: string,
+  *                     features: string[],
+  *                     description: string,
+  *                     photos: string[]},
+  *             location: {x: number,
+  *                        y: number},
+  *             show: boolean}} ad объект объявления
+  */
+
   var mapFilters = document.querySelector('.map__filters');
 
-  var housingType = document.querySelector('#housing-type');
-  var housingPrice = document.querySelector('#housing-price');
-  var housingRooms = document.querySelector('#housing-rooms');
-  var housingGuests = document.querySelector('#housing-guests');
+  var mapFiltersSelect = mapFilters.querySelectorAll('select');
+
   var housingFeatures = document.querySelector('#housing-features');
   var inputFeatures = housingFeatures.querySelectorAll('[name="features"]');
 
   var mapPins = document.querySelector('.map__pins');
-  var mapPinsCollection = document.getElementsByClassName('map__pin');
-  var mapCardsCollection = document.getElementsByClassName('map__card');
+
+  var htmlCollection = {
+    pins: document.getElementsByClassName('map__pin'),
+    cards: document.getElementsByClassName('map__card'),
+  };
 
   var rangePrice = {
     low: {
@@ -29,10 +48,8 @@
     }
   };
 
-  /**
-  * Приводит фильтры в активное состояние
-  *
-  */
+  var filters = createFiltersDefault();
+
   function makeFiltersActive() {
     mapFilters.querySelectorAll('select').forEach(function (el) {
       el.removeAttribute('disabled');
@@ -41,10 +58,7 @@
       el.removeAttribute('disabled');
     });
   }
-  /**
-  * Блокирует фильтры
-  *
-  */
+
   function makeFiltersInactive() {
     mapFilters.querySelectorAll('select').forEach(function (el) {
       el.setAttribute('disabled', 'disabled');
@@ -73,49 +87,10 @@
   }
 
   /**
-  * Функция-обработчик при выборе параметра в фильтрах
-  *
-  * @param {HTMLElement} evt
-  */
-  function onInputFilterClick(evt) {
-    var nameInput = evt.currentTarget.name.split('-').pop();
-
-    filters[nameInput].value = evt.currentTarget.value;
-
-    window.util.removeAds(mapPinsCollection);
-    window.util.removeAds(mapCardsCollection);
-    applyFilter(window.data.listAdsCopy);
-    window.addDom.renderNodes(window.data.listAdsCopy, window.pin.createPinNode, mapPins, window._map.addPinHandlers);
-    window.addDom.renderNodes(window.data.listAdsCopy, window.card.createCardNode, mapPins, window._map.addCardHandlers);
-  }
-  /**
-  * Функция-обработчик при выборе характеристик
-  *
-  * @param {HTMLElement} evt
-  */
-  function onInputFeaturesClick(evt) {
-    var nameChecked = evt.target.value;
-
-    if (evt.target.checked) {
-      filters.features.push(nameChecked);
-    } else {
-      filters.features = filters.features.filter(function (feature) {
-        return feature !== nameChecked;
-      });
-    }
-
-    window.util.removeAds(mapPinsCollection);
-    window.util.removeAds(mapCardsCollection);
-    applyFilter(window.data.listAdsCopy);
-    window.addDom.renderNodes(window.data.listAdsCopy, window.pin.createPinNode, mapPins, window._map.addPinHandlers);
-    window.addDom.renderNodes(window.data.listAdsCopy, window.card.createCardNode, mapPins, window._map.addCardHandlers);
-  }
-
-  /**
    * Проверяет, соответствует ли объект параметрам фильтра
    *
-   * @param {object} ad массив объявления
-   * @return {boolean} true
+   * @param  {ad} ad объект объявления
+   * @return {boolean} boolean
    */
   function isDoesFilterValue(ad) {
     return (filters.type.value === 'any' || filters.type.value === ad.offer.type)
@@ -133,39 +108,77 @@
   * @param {object[]} arr объект с данными
   */
   function applyFilter(arr) {
-    arr.forEach(function (ad) {
-      if (isDoesFilterValue(ad)) {
-        ad.show = true;
-      } else {
-        ad.show = false;
-      }
-    });
+    window.util.changeValueShow(arr, isDoesFilterValue);
+    window.util.applyToTheWholeObject(window.util.removeAds, htmlCollection);
+
+    var listAdsShow = window.util.getShowObjectSpecificLength(arr, window.constants.QUANTITY);
+
+    window.render.renderNodes(listAdsShow, window.pin.createPinNode, mapPins, window.cityMap.addPinHandlers);
+    window.render.renderNodes(listAdsShow, window.card.createCardNode, mapPins, window.cityMap.addCardHandlers);
   }
 
   /**
-  * Сбрасывает фильтры
   *
   * @param {object[]} arr объект с данными
   */
   function resetFilters(arr) {
     filters = createFiltersDefault();
-    applyFilter(arr);
+    window.util.changeValueShow(arr, isDoesFilterValue);
   }
 
-  var filters = createFiltersDefault();
+  /**
+  *
+  * @param {Event} evt
+  */
+  function onInputFilterClick(evt) {
 
+    var nameInput = evt.currentTarget.name.split('-').pop();
 
-  housingType.addEventListener('input', onInputFilterClick);
-  housingPrice.addEventListener('input', onInputFilterClick);
-  housingRooms.addEventListener('input', onInputFilterClick);
-  housingGuests.addEventListener('input', onInputFilterClick);
-  inputFeatures.forEach(function (el) {
-    el.addEventListener('click', onInputFeaturesClick);
-  });
+    filters[nameInput].value = evt.currentTarget.value;
+
+    applyFilter(window.data.listAdsCopy);
+  }
+  /**
+  *
+  * @param {Event} evt
+  */
+  function onInputFeaturesClick(evt) {
+    var nameChecked = evt.target.value;
+
+    if (evt.target.checked) {
+      filters.features.push(nameChecked);
+    } else {
+      filters.features = filters.features.filter(function (feature) {
+        return feature !== nameChecked;
+      });
+    }
+
+    applyFilter(window.data.listAdsCopy);
+  }
+
+  function addHandlersFilters() {
+    mapFiltersSelect.forEach(function (el) {
+      el.addEventListener('input', onInputFilterClick);
+    });
+    inputFeatures.forEach(function (el) {
+      el.addEventListener('click', onInputFeaturesClick);
+    });
+  }
+
+  function removeHandlersFilters() {
+    mapFiltersSelect.forEach(function (el) {
+      el.removeEventListener('input', onInputFilterClick);
+    });
+    inputFeatures.forEach(function (el) {
+      el.removeEventListener('click', onInputFeaturesClick);
+    });
+  }
 
   window.filter = {
     makeFiltersActive: makeFiltersActive,
     makeFiltersInactive: makeFiltersInactive,
-    resetFilters: resetFilters
+    resetFilters: resetFilters,
+    addHandlersFilters: addHandlersFilters,
+    removeHandlersFilters: removeHandlersFilters
   };
 })();

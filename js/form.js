@@ -10,6 +10,7 @@
   };
 
   var main = document.querySelector('main');
+  var mapPinMain = document.querySelector('.map__pin--main');
 
   var templateSuccess = document.querySelector('#success')
   .content
@@ -33,20 +34,13 @@
 
   var adFormReset = document.querySelector('.ad-form__reset');
 
-  /**
-  * Приводит форму подачи заявления в активное состояние
-  *
-  */
   function makeFormsActive() {
     adForm.classList.remove('ad-form--disabled');
     adForm.querySelectorAll('fieldset').forEach(function (el) {
       el.removeAttribute('disabled');
     });
   }
-  /**
-  * Блокирует форму подачи заявления
-  *
-  */
+
   function makeFormsInactive() {
     adForm.classList.add('ad-form--disabled');
     adForm.querySelectorAll('fieldset').forEach(function (el) {
@@ -56,7 +50,7 @@
 
   /**
   * Заполняет поле адреса координатами метки
-  * @param {HTMLElement} el метка, для которой заполняется адрес
+  * @param {HTMLButtonElement} el метка, для которой заполняется адрес
   */
   function fillAddressFieldAdForm(el) {
     adFormAddress.value = (el.offsetLeft + el.scrollWidth / 2) + ', ' + (el.offsetTop + el.scrollHeight);
@@ -138,18 +132,16 @@
   }
 
   /**
-  * Функция-обработчик при выборе времени заезда или выезда
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onFieldTimeClick(evt) {
     setupValueFieldTime(evt.target);
   }
 
   /**
-  * Функция-обработчик при выборе кол-ва комнат
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onFieldRoomClick(evt) {
     var roomValue = evt.target.value;
@@ -159,9 +151,8 @@
   }
 
   /**
-  * Функция-обработчик при отправке формы
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onButtonFormSubmit(evt) {
     window.upload(new FormData(adForm), function () {
@@ -172,27 +163,26 @@
 
     evt.preventDefault();
 
-    window.tearDown.stopPageWork();
+    window.page.stopPageWork();
 
     window.addEventListener('keydown', onResponseMessageEscPress);
     window.addEventListener('click', onResponseMessageClick);
   }
 
   /**
-  * Функция-обработчик при очистке формы
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onButtonResetFormClick(evt) {
     evt.preventDefault();
-    window.tearDown.stopPageWork();
+    window.page.stopPageWork();
     evt.currentTarget.removeEventListener('click', onButtonResetFormClick);
   }
 
   /**
   * Функция-обработчик  при нажатии на сообщение об отправке данных
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onResponseMessageClick(evt) {
     evt.preventDefault();
@@ -209,6 +199,18 @@
       window.removeEventListener('keydown', onResponseMessageEscPress);
       window.removeEventListener('click', onResponseMessageClick);
     }
+  }
+
+  function setupFormValidation() {
+    setupMinPriceValidation(typeSelect);
+    setupGuestForRoomValidation(roomNumber.value);
+  }
+
+  function synchFieldsForm() {
+    fillAddressFieldAdForm(mapPinMain);
+    setupMinPriceForField('placeholder');
+    setupValueCapacity();
+    setupValueFieldTime(timeOfArrival);
   }
 
   function addHandlersForm() {
@@ -252,12 +254,9 @@
   window.form = {
     makeFormsActive: makeFormsActive,
     makeFormsInactive: makeFormsInactive,
+    setupFormValidation: setupFormValidation,
+    synchFieldsForm: synchFieldsForm,
     fillAddressFieldAdForm: fillAddressFieldAdForm,
-    setupMinPriceValidation: setupMinPriceValidation,
-    setupMinPriceForField: setupMinPriceForField,
-    setupValueFieldTime: setupValueFieldTime,
-    setupGuestForRoomValidation: setupGuestForRoomValidation,
-    setupValueCapacity: setupValueCapacity,
     eraseValueField: eraseValueField,
     addHandlersForm: addHandlersForm,
     removeHandlersForm: removeHandlersForm,
