@@ -10,20 +10,29 @@
   function makeCityMapInactive() {
     cityMap.classList.add('map--faded');
   }
+  /**
+  * @param {HTMLElement} pin метка
+  * @return {HTMLElement} карточка
+  */
+  function getCard(pin) {
+    var idPin = pin.attributes.id.textContent;
+    var idCard = idPin.replace('pin', 'card');
+    return document.querySelector('#' + idCard);
+  }
 
   /**
   * @param {HTMLElement} pinActive выбранная метка
   */
   function openCard(pinActive) {
-    var idPin = pinActive.attributes.id.textContent;
-    var idCard = idPin.replace('pin', 'card');
-
-    var card = document.querySelector('#' + idCard);
+    var card = getCard(pinActive);
 
     pinActive.classList.add('map__pin--active');
 
     card.removeAttribute('style', 'display: none');
     card.addEventListener('keydown', onCardEnterPress);
+    card.addEventListener('click', onCardClick);
+
+    document.addEventListener('keydown', onCardEscPress);
   }
 
   /**
@@ -34,6 +43,9 @@
 
     cardActive.setAttribute('style', 'display: none');
     cardActive.removeEventListener('keydown', onCardEnterPress);
+    cardActive.removeEventListener('click', onCardClick);
+
+    document.removeEventListener('keydown', onCardEscPress);
   }
 
   /**
@@ -43,9 +55,8 @@
     var pinActive = document.querySelector('.map__pin--active');
 
     if (pinActive) {
-      var idPinActive = pinActive.attributes.id.textContent;
-      var idCardActive = idPinActive.replace('pin', 'card');
-      closeCard(document.querySelector('#' + idCardActive));
+      var cardActive = getCard(pinActive);
+      closeCard(cardActive);
     }
     openCard(evt.currentTarget);
   }
@@ -54,14 +65,7 @@
   */
   function onPinEnterPress(evt) {
     if (evt.keyCode === window.constants.ENTER_KEYCODE) {
-      var pinActive = document.querySelector('.map__pin--active');
-
-      if (pinActive) {
-        var idPinActive = pinActive.attributes.id.textContent;
-        var idCardActive = idPinActive.replace('pin', 'card');
-        closeCard(document.querySelector('#' + idCardActive));
-      }
-      openCard(evt.currentTarget);
+      onPinClick(evt);
     }
   }
 
@@ -82,10 +86,17 @@
       closeCard(evt.currentTarget);
     }
   }
+  /**
+  *
+  * @param {KeyboardEvent} evt
+  */
+  function onCardEscPress(evt) {
+    var pinActive = document.querySelector('.map__pin--active');
 
-  function addCardHandlers(el) {
-    el.addEventListener('click', onCardClick);
-    el.addEventListener('keydown', onCardEnterPress);
+    if (evt.keyCode === window.constants.ESC_KEYCODE && pinActive) {
+      var cardActive = getCard(pinActive);
+      closeCard(cardActive);
+    }
   }
 
   function addPinHandlers(el) {
@@ -95,7 +106,6 @@
 
 
   window.cityMap = {
-    addCardHandlers: addCardHandlers,
     addPinHandlers: addPinHandlers,
     makeCityMapActive: makeCityMapActive,
     makeCityMapInactive: makeCityMapInactive

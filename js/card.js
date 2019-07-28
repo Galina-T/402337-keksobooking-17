@@ -21,18 +21,18 @@
   */
 
   var templateCard = document.querySelector('#card')
-  .content
-  .querySelector('.map__card');
+    .content
+    .querySelector('.map__card');
 
   var titlesRoom = ['комната', 'комнаты', 'комнат'];
   var titlesGuest = ['гостя', 'гостей', 'гостей'];
   /**
-  * создает объект с DOM Node блоков карточки объявления
+  * создает объект с DOM Node елементами карточки объявления
   *
   * @param {HTMLElement} node DOM Node карточки объвления
   * @return {object} объект с блоками
   */
-  function createCardBlock(node) {
+  function createCardNodeElements(node) {
     return {
       avatar: node.querySelector('.popup__avatar'),
       title: node.querySelector('.popup__title'),
@@ -48,127 +48,115 @@
   }
 
   /**
-  * Создает объект с DOM Node елементами карточки объявления
+  * Скрывает DOM Node елемент карточки объявления
   *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
+  * @param {HTMLElement} el DOM Node елемент карточки объвления
   */
-  function setupBlockDisplay(block) {
-    block.setAttribute('style', 'display: none');
+  function hideElement(el) {
+    el.setAttribute('style', 'display: none');
   }
-
   /**
   *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
-  * @param {*} data данные для блока
+  * @param {ad} ad объект объявления
+  * @return {string} url аватара
   */
-  function fillBlockAvatar(block, data) {
+  function getDataAvatar(ad) {
+    return ad.author.avatar;
+  }
+  /**
+  *
+  * @param {ad} ad объект объявления
+  * @return {string} заголовок объявления
+  */
+  function getDataTitle(ad) {
+    return ad.offer.title;
+  }
+  /**
+  *
+  * @param {ad} ad объект объявления
+  * @return {string} адрес
+  */
+  function getDataAddress(ad) {
+    return ad.offer.address;
+  }
+  /**
+  *
+  * @param {ad} ad объект объявления
+  * @return {number} цена
+  */
+  function getDataPrice(ad) {
+    return ad.offer.price + '₽/ночь';
+  }
+  /**
+  *
+  * @param {ad} ad объект объявления
+  * @return {string} тип жилья
+  */
+  function getDataType(ad) {
+    return window.constants.TYPES[ad.offer.type].name;
+  }
+  /**
+  *
+  * @param {ad} ad объект объявления
+  * @return {string} описание
+  */
+  function getDataDescription(ad) {
+    return ad.offer.description;
+  }
+  /**
+  *
+  * @param {HTMLElement} el DOM Node блока карточки объвления
+  * @param {string} elField поле, в которое записываются данные
+  * @param {ad} ad объект объявления
+  * @param {Function} getData функция для получения данных
+  */
+  function fillElement(el, elField, ad, getData) {
+    var data = getData(ad);
     if (window.util.isDataMissing(data)) {
-      setupBlockDisplay(block);
+      hideElement(el);
     } else {
-      block.src = data;
+      el[elField] = data;
     }
   }
   /**
   *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
-  * @param {*} data данные для блока
+  * @param {HTMLElement} el DOM Node блока карточки объвления
+  * @param {object} data объект с данными для блока
   */
-  function fillBlockTitle(block, data) {
-    if (window.util.isDataMissing(data)) {
-      setupBlockDisplay(block);
+  function fillElementCapacity(el, data) {
+    if (window.util.isDataMissing(data.rooms) || window.util.isDataMissing(data.guests)) {
+      hideElement(el);
     } else {
-      block.textContent = data;
+      el.textContent = data.rooms + ' ' + window.util.getDeclinationForm(data.rooms, titlesRoom)
+          + ' для '
+          + data.guests + ' ' + window.util.getDeclinationForm(data.guests, titlesGuest);
     }
   }
   /**
   *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
-  * @param {*} data данные для блока
+  * @param {HTMLElement} el DOM Node блока карточки объвления
+  * @param {object} data объект с данными для блока
   */
-  function fillBlockAddress(block, data) {
-    if (window.util.isDataMissing(data)) {
-      setupBlockDisplay(block);
-    } else {
-      block.textContent = data;
-    }
-  }
-  /**
-  *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
-  * @param {*} data данные для блока
-  */
-  function fillBlockPrice(block, data) {
-    if (window.util.isDataMissing(data)) {
-      setupBlockDisplay(block);
-    } else {
-      block.textContent = data + '₽/ночь';
-    }
-  }
-  /**
-  *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
-  * @param {*} data данные для блока
-  */
-  function fillBlockType(block, data) {
-    if (window.util.isDataMissing(data)) {
-      setupBlockDisplay(block);
-    } else {
-      block.textContent = window.constants.TYPES[data].name;
-    }
-  }
-  /**
-  *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
-  * @param {object} el объект с данными для блока
-  */
-  function fillBlockCapacity(block, el) {
-    if (window.util.isDataMissing(el.rooms) || window.util.isDataMissing(el.guests)) {
-      setupBlockDisplay(block);
-    } else {
-      block.textContent = el.rooms + ' ' + window.util.declOfNum(el.rooms, titlesRoom)
-        + ' для '
-        + el.guests + ' ' + window.util.declOfNum(el.guests, titlesGuest);
-    }
-  }
-  /**
-  *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
-  * @param {object} el объект с данными для блока
-  */
-  function fillBlockTime(block, el) {
+  function fillElementTime(el, data) {
     if (window.util.isDataMissing(el.checkin) || window.util.isDataMissing(el.checkout)) {
-      setupBlockDisplay(block);
+      hideElement(el);
     } else {
-      block.textContent = 'Заезд после ' + el.checkin + ', выезд до ' + el.checkout;
+      el.textContent = 'Заезд после ' + data.checkin + ', выезд до ' + data.checkout;
     }
   }
   /**
   *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
+  * @param {HTMLElement} el DOM Node блока карточки объвления
   * @param {*} data данные для блока
   */
-  function fillBlockDescription(block, data) {
+  function fillElementFeatures(el, data) {
     if (window.util.isDataMissing(data)) {
-      setupBlockDisplay(block);
+      hideElement(el);
     } else {
-      block.textContent = data;
-    }
-  }
-  /**
-  *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
-  * @param {*} data данные для блока
-  */
-  function fillBlockFeatures(block, data) {
-    if (window.util.isDataMissing(data)) {
-      setupBlockDisplay(block);
-    } else {
-      Array.prototype.forEach.call(block.children, function (feature) {
-        feature.setAttribute('style', 'display: none');
-      });
+      Array.prototype.forEach.call(el.children, hideElement);
 
       data.forEach(function (feature) {
-        var classFeature = block.querySelector('.popup__feature--' + feature);
+        var classFeature = el.querySelector('.popup__feature--' + feature);
 
         if (classFeature) {
           classFeature.removeAttribute('style', 'display: none');
@@ -178,27 +166,26 @@
   }
   /**
   *
-  * @param {HTMLElement} block DOM Node блока карточки объвления
+  * @param {HTMLElement} el DOM Node блока карточки объвления
   * @param {*} data данные для блока
-  * @param {HTMLElement} el DOM Node children block
+  * @param {HTMLElement} img DOM Node children el
   */
-  function fillBlockPhotos(block, data, el) {
+  function fillElementPhotos(el, data, img) {
     if (window.util.isDataMissing(data)) {
-      setupBlockDisplay(block);
+      hideElement(el);
     } else {
       data.forEach(function (url, idx) {
-        var nodePhoto = block.children[idx];
+        var nodePhoto = el.children[idx];
         if (nodePhoto) {
           nodePhoto.src = url;
         } else {
-          var newEl = el.cloneNode(true);
-          newEl.src = url;
-          block.appendChild(newEl);
+          var newImg = img.cloneNode(true);
+          newImg.src = url;
+          el.appendChild(newImg);
         }
       });
     }
   }
-
   /**
   * Подготавливает DOM Node объект карточки объявления
   *
@@ -208,18 +195,19 @@
   function createCardNode(ad) {
     var cardNode = templateCard.cloneNode(true);
     var cardNodePhoto = cardNode.querySelector('.popup__photo');
-    var cardBlock = createCardBlock(cardNode);
+    var cardNodeElement = createCardNodeElements(cardNode);
 
-    fillBlockAvatar(cardBlock.avatar, ad.author.avatar);
-    fillBlockTitle(cardBlock.title, ad.offer.title);
-    fillBlockAddress(cardBlock.address, ad.offer.address);
-    fillBlockPrice(cardBlock.price, ad.offer.price);
-    fillBlockType(cardBlock.type, ad.offer.type);
-    fillBlockCapacity(cardBlock.capacity, ad.offer);
-    fillBlockTime(cardBlock.time, ad.offer);
-    fillBlockDescription(cardBlock.description, ad.offer.description);
-    fillBlockFeatures(cardBlock.features, ad.offer.features);
-    fillBlockPhotos(cardBlock.photos, ad.offer.photos, cardNodePhoto);
+    fillElement(cardNodeElement.avatar, 'src', ad, getDataAvatar);
+    fillElement(cardNodeElement.title, 'textContent', ad, getDataTitle);
+    fillElement(cardNodeElement.address, 'textContent', ad, getDataAddress);
+    fillElement(cardNodeElement.price, 'textContent', ad, getDataPrice);
+    fillElement(cardNodeElement.type, 'textContent', ad, getDataType);
+    fillElement(cardNodeElement.description, 'textContent', ad, getDataDescription);
+
+    fillElementCapacity(cardNodeElement.capacity, ad.offer);
+    fillElementTime(cardNodeElement.time, ad.offer);
+    fillElementFeatures(cardNodeElement.features, ad.offer.features);
+    fillElementPhotos(cardNodeElement.photos, ad.offer.photos, cardNodePhoto);
 
     cardNode.setAttribute('id', 'card-' + ad.id);
     cardNode.setAttribute('style', 'display: none');

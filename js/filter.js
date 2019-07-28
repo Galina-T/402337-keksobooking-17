@@ -114,7 +114,7 @@
     var listAdsShow = window.util.getShowObjectSpecificLength(arr, window.constants.QUANTITY);
 
     window.render.renderNodes(listAdsShow, window.pin.createPinNode, mapPins, window.cityMap.addPinHandlers);
-    window.render.renderNodes(listAdsShow, window.card.createCardNode, mapPins, window.cityMap.addCardHandlers);
+    window.render.renderNodes(listAdsShow, window.card.createCardNode, mapPins);
   }
 
   /**
@@ -155,6 +155,16 @@
 
     applyFilter(window.data.listAdsCopy);
   }
+  /**
+  *
+  * @param {KeyboardEvent} evt
+  */
+  function onInputFeaturesKeyDown(evt) {
+    if (evt.keyCode === window.constants.ENTER_KEYCODE) {
+      evt.target.checked = !evt.target.checked;
+      onInputFeaturesClick(evt);
+    }
+  }
 
   function addHandlersFilters() {
     mapFiltersSelect.forEach(function (el) {
@@ -162,6 +172,7 @@
     });
     inputFeatures.forEach(function (el) {
       el.addEventListener('click', onInputFeaturesClick);
+      el.addEventListener('keydown', onInputFeaturesKeyDown);
     });
   }
 

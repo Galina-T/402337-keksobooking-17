@@ -194,7 +194,7 @@
           <label class="ad-form__label">Фотографии жилья</label>
           <div class="ad-form__photo-container">
             <div class="ad-form__upload">
-              <input type="file" id="images" name="images" class="ad-form__input visually-hidden">
+              <input type="file" id="images" name="images" class="ad-form__input visually-hidden" multiple>
               <label for="images" class="ad-form__drop-zone">Загрузите или&nbsp;перетащите сюда фото</label>
             </div>
             <div class="ad-form__photo"></div>
@@ -268,19 +268,20 @@
       <button class="error__button" href="#">Попробовать снова</button>
     </div>
   </template>
-  <script src="js/constants.js"></script><!-- не зависит -->
-  <script src="js/utils.js"></script><!-- не зависит -->
-  <script src="js/load.js"></script><!-- не зависит -->
-  <script src="js/upload.js"></script><!-- не зависит -->
-  <script src="js/data.js"></script><!-- не зависит -->
-  <script src="js/cityMap.js"></script><!-- от constants -->
-  <script src="js/pin.js"></script><!-- от constants -->
-  <script src="js/card.js"></script><!-- от util, constants -->
-  <script src="js/render.js"></script><!-- не зависит -->
-  <script src="js/form.js"></script><!-- от constants, upLoad, page-->
-  <script src="js/pinDrag.js"></script><!-- от constants-->
-  <script src="js/filter.js"></script><!-- от util, constants, render, pin, card, cityMap, data-->
-  <script src="js/page.js"></script><!-- от constants, pinDrag, util, data, cityMap, form, filter, render, pin, card -->
-  <script src="js/setup.js"></script><!-- от form, page, data -->
+  <script src="js/constants.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/load.js"></script>
+  <script src="js/upload.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/dropZone.js"></script>
+  <script src="js/cityMap.js"></script>
+  <script src="js/pin.js"></script>
+  <script src="js/card.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/form.js"></script>
+  <script src="js/pinDrag.js"></script>
+  <script src="js/filter.js"></script>
+  <script src="js/page.js"></script>
+  <script src="js/setup.js"></script>
 </body>
 </html>

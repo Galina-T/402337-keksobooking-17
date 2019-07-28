@@ -34,5 +34,6 @@ window.constants = (function () {
         priceMin: 0
       }
     },
+    FILE_TYPES: ['gif', 'jpg', 'jpeg', 'png'],
   };
 })();

@@ -20,8 +20,8 @@
   */
 
   var templatePin = document.querySelector('#pin')
-  .content
-  .querySelector('.map__pin');
+    .content
+    .querySelector('.map__pin');
 
   /**
   * Подготавливает DOM Node объект метки объявления

@@ -39,6 +39,18 @@
     top: window.constants.PIN_MAIN_TOP,
   };
 
+  function makePageActive() {
+    window.cityMap.makeCityMapActive();
+    window.form.makeFormsActive();
+    window.filter.makeFiltersActive();
+  }
+
+  function makePageInactive() {
+    window.cityMap.makeCityMapInactive();
+    window.form.makeFormsInactive();
+    window.filter.makeFiltersInactive();
+  }
+
   function initDrag() {
     var onPinDrag = window.pinDrag.makeOnPinDrag(window.form.fillAddressFieldAdForm, startPageWork);
 
@@ -48,20 +60,21 @@
   function startPageWork() {
     var listAdsShow = window.util.getShowObjectSpecificLength(window.data.listAdsCopy, window.constants.QUANTITY);
 
-    window.cityMap.makeCityMapActive();
-    window.form.makeFormsActive();
-    window.filter.makeFiltersActive();
+    makePageActive();
 
     window.form.setupFormValidation();
 
     window.render.renderNodes(listAdsShow, window.pin.createPinNode, mapPins, window.cityMap.addPinHandlers);
-    window.render.renderNodes(listAdsShow, window.card.createCardNode, mapPins, window.cityMap.addCardHandlers);
+    window.render.renderNodes(listAdsShow, window.card.createCardNode, mapPins);
 
     window.form.addHandlersForm();
     window.filter.addHandlersFilters();
   }
 
   function stopPageWork() {
+    window.dropZone.setDefaultAvatar();
+    window.dropZone.cleanPhotosContainer();
+
     window.util.applyToTheWholeObject(window.util.removeAds, htmlCollection);
     window.util.applyToTheWholeObject(window.form.eraseValueField, inputText);
     window.util.applyToTheWholeObject(window.util.setupSelectedDefault, formSelect);
@@ -72,9 +85,7 @@
 
     window.filter.resetFilters(window.data.listAdsCopy);
 
-    window.cityMap.makeCityMapInactive();
-    window.form.makeFormsInactive();
-    window.filter.makeFiltersInactive();
+    makePageInactive();
 
     window.form.synchFieldsForm();
 
@@ -86,5 +97,6 @@
     startPageWork: startPageWork,
     stopPageWork: stopPageWork,
     initDrag: initDrag,
+    makePageInactive: makePageInactive,
   };
 })();

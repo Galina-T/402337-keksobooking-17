@@ -14,7 +14,9 @@
 
     arr.forEach(function (el) {
       var node = createFn(el);
-      addHandlers(node);
+      if (addHandlers) {
+        addHandlers(node);
+      }
       fragment.appendChild(node);
     });
     attachNode.appendChild(fragment);
