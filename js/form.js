@@ -10,16 +10,22 @@
   };
 
   var main = document.querySelector('main');
+  var mapPinMain = document.querySelector('.map__pin--main');
 
   var templateSuccess = document.querySelector('#success')
-  .content
-  .querySelector('.success');
+    .content
+    .querySelector('.success');
 
   var templateError = document.querySelector('#error')
-  .content
-  .querySelector('.error');
+    .content
+    .querySelector('.error');
 
   var adForm = document.querySelector('.ad-form');
+
+  var filesChooser = {
+    avatar: document.querySelector('.ad-form__field input[type=file]'),
+    potos: document.querySelector('.ad-form__upload input[type=file]'),
+  };
 
   var adFormAddress = document.querySelector('#address');
   var typeSelect = document.querySelector('#type');
@@ -31,22 +37,21 @@
   var roomNumber = document.querySelector('#room_number');
   var capacity = document.querySelector('#capacity');
 
+  var features = document.querySelector('.features');
+  var inputFeatures = features.querySelectorAll('[name="features"]');
+
   var adFormReset = document.querySelector('.ad-form__reset');
 
-  /**
-  * Приводит форму подачи заявления в активное состояние
-  *
-  */
+  var avatarChooser = makeChooser(filesChooser.avatar, window.dropZone.createAvatarPhoto);
+  var photosChooser = makeChooser(filesChooser.potos, window.dropZone.createPhotoContainer);
+
   function makeFormsActive() {
     adForm.classList.remove('ad-form--disabled');
     adForm.querySelectorAll('fieldset').forEach(function (el) {
       el.removeAttribute('disabled');
     });
   }
-  /**
-  * Блокирует форму подачи заявления
-  *
-  */
+
   function makeFormsInactive() {
     adForm.classList.add('ad-form--disabled');
     adForm.querySelectorAll('fieldset').forEach(function (el) {
@@ -54,9 +59,22 @@
     });
   }
 
+  function makeChooser(fileChooser, cb) {
+    var onClickDropZone = window.dropZone.makeOnClickDropZone(fileChooser, cb);
+
+    return {
+      init: function () {
+        fileChooser.addEventListener('change', onClickDropZone);
+      },
+      stop: function () {
+        fileChooser.removeEventListener('change', onClickDropZone);
+      }
+    };
+  }
+
   /**
   * Заполняет поле адреса координатами метки
-  * @param {HTMLElement} el метка, для которой заполняется адрес
+  * @param {HTMLButtonElement} el метка, для которой заполняется адрес
   */
   function fillAddressFieldAdForm(el) {
     adFormAddress.value = (el.offsetLeft + el.scrollWidth / 2) + ', ' + (el.offsetTop + el.scrollHeight);
@@ -138,18 +156,16 @@
   }
 
   /**
-  * Функция-обработчик при выборе времени заезда или выезда
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onFieldTimeClick(evt) {
     setupValueFieldTime(evt.target);
   }
 
   /**
-  * Функция-обработчик при выборе кол-ва комнат
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onFieldRoomClick(evt) {
     var roomValue = evt.target.value;
@@ -158,10 +174,16 @@
     setupGuestForRoomValidation(roomValue);
   }
 
+  function onFeaturesKeyDown(evt) {
+    if (evt.keyCode === window.constants.ENTER_KEYCODE) {
+      evt.preventDefault();
+      evt.target.checked = !evt.target.checked;
+    }
+  }
+
   /**
-  * Функция-обработчик при отправке формы
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onButtonFormSubmit(evt) {
     window.upload(new FormData(adForm), function () {
@@ -172,27 +194,26 @@
 
     evt.preventDefault();
 
-    window.tearDown.stopPageWork();
+    window.page.stopPageWork();
 
     window.addEventListener('keydown', onResponseMessageEscPress);
     window.addEventListener('click', onResponseMessageClick);
   }
 
   /**
-  * Функция-обработчик при очистке формы
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onButtonResetFormClick(evt) {
     evt.preventDefault();
-    window.tearDown.stopPageWork();
+    window.page.stopPageWork();
     evt.currentTarget.removeEventListener('click', onButtonResetFormClick);
   }
 
   /**
   * Функция-обработчик  при нажатии на сообщение об отправке данных
   *
-  * @param {HTMLElement} evt
+  * @param {Event} evt
   */
   function onResponseMessageClick(evt) {
     evt.preventDefault();
@@ -211,10 +232,25 @@
     }
   }
 
+  function setupFormValidation() {
+    setupMinPriceValidation(typeSelect);
+    setupGuestForRoomValidation(roomNumber.value);
+  }
+
+  function synchFieldsForm() {
+    fillAddressFieldAdForm(mapPinMain);
+    setupMinPriceForField('placeholder');
+    setupValueCapacity();
+    setupValueFieldTime(timeOfArrival);
+  }
+
   function addHandlersForm() {
     adForm.addEventListener('submit', onButtonFormSubmit);
 
     adFormReset.addEventListener('click', onButtonResetFormClick);
+
+    avatarChooser.init();
+    photosChooser.init();
 
     typeSelect.addEventListener('input', function (evt) {
       setupMinPriceForField('placeholder');
@@ -229,9 +265,16 @@
     checkOutTime.addEventListener('input', onFieldTimeClick);
 
     roomNumber.addEventListener('input', onFieldRoomClick);
+
+    inputFeatures.forEach(function (el) {
+      el.addEventListener('keydown', onFeaturesKeyDown);
+    });
   }
 
   function removeHandlersForm() {
+    avatarChooser.stop();
+    photosChooser.stop();
+
     typeSelect.removeEventListener('input', function (evt) {
       setupMinPriceForField('placeholder');
       setupMinPriceValidation(evt.target);
@@ -246,18 +289,19 @@
 
     roomNumber.removeEventListener('input', onFieldRoomClick);
 
+    inputFeatures.forEach(function (el) {
+      el.removeEventListener('keydown', onFeaturesKeyDown);
+    });
+
     adForm.removeEventListener('submit', onButtonFormSubmit);
   }
 
   window.form = {
     makeFormsActive: makeFormsActive,
     makeFormsInactive: makeFormsInactive,
+    setupFormValidation: setupFormValidation,
+    synchFieldsForm: synchFieldsForm,
     fillAddressFieldAdForm: fillAddressFieldAdForm,
-    setupMinPriceValidation: setupMinPriceValidation,
-    setupMinPriceForField: setupMinPriceForField,
-    setupValueFieldTime: setupValueFieldTime,
-    setupGuestForRoomValidation: setupGuestForRoomValidation,
-    setupValueCapacity: setupValueCapacity,
     eraseValueField: eraseValueField,
     addHandlersForm: addHandlersForm,
     removeHandlersForm: removeHandlersForm,

@@ -1,23 +1,10 @@
 'use strict';
 
-(function () {
-  var mapPins = document.querySelector('.map__pins');
+window.form.synchFieldsForm();
 
-  // запускает работу страницы
-  function startPageWork() {
-    window._map.makeMapActive();
-    window.form.makeFormsActive();
-    window.filter.makeFiltersActive();
+window.page.makePageInactive();
 
-    window.filter.resetFilters(window.data.listAdsCopy);
+window.page.initDrag();
 
-    window.addDom.renderNodes(window.data.listAdsCopy, window.pin.createPinNode, mapPins, window._map.addPinHandlers);
-    window.addDom.renderNodes(window.data.listAdsCopy, window.card.createCardNode, mapPins, window._map.addCardHandlers);
+window.load(window.data.loadData, window.data.errorHandler);
 
-    window.form.addHandlersForm();
-  }
-
-  window.setup = {
-    startPageWork: startPageWork
-  };
-})();

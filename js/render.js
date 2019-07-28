@@ -13,16 +13,16 @@
     var fragment = document.createDocumentFragment();
 
     arr.forEach(function (el) {
-      if (el.show) {
-        var node = createFn(el);
+      var node = createFn(el);
+      if (addHandlers) {
         addHandlers(node);
-        fragment.appendChild(node);
       }
+      fragment.appendChild(node);
     });
     attachNode.appendChild(fragment);
   }
 
-  window.addDom = {
+  window.render = {
     renderNodes: renderNodes,
   };
 })();
