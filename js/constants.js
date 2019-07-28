@@ -35,5 +35,6 @@ window.constants = (function () {
       }
     },
     FILE_TYPES: ['gif', 'jpg', 'jpeg', 'png'],
+    DROP_EVENTS: ['dragenter', 'dragover', 'dragleave', 'drop'],
   };
 })();

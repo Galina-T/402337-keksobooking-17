@@ -7,6 +7,11 @@
   var preview = document.querySelector('.ad-form-header__preview img');
   var defaultAvatarImgSrc = preview.src;
 
+  /**
+  *
+  * @param {FileReader} reader instance класса FileReader
+  * @return {Function} функция для создания контейнера с выбранной фотографией
+  */
   function createPhotoContainer(reader) {
     return function () {
       var container = photoContainer.cloneNode(true);
@@ -22,24 +27,31 @@
     };
   }
 
+  /**
+  *
+  * @param {FileReader} reader instance класса FileReader
+  * @return {Function} функция записи url выбранного аватара
+  */
   function createAvatarPhoto(reader) {
     return function () {
       preview.src = reader.result;
     };
   }
 
-  function checkFileName(fileName) {
-    return function (type) {
-      return fileName.endsWith(type);
-    };
-  }
-
-  function makeOnClickDropZone(dropZone, cb) {
+  /**
+  *
+  * @param {{files: array}} obj объект, содержащий файлы
+  * @param {Function} cb функция-callback
+  * @return {Function} onClickDropZone функция-обработчик
+  */
+  function makeOnClickDropZone(obj, cb) {
     return function onClickDropZone() {
-      Array.prototype.map.call(dropZone.files, function (file) {
+      Array.prototype.map.call(obj.files, function (file) {
         var fileName = file.name.toLowerCase();
 
-        var matches = window.constants.FILE_TYPES.some(checkFileName(fileName));
+        var matches = window.constants.FILE_TYPES.some(function (type) {
+          return fileName.endsWith(type);
+        });
 
         if (matches) {
           var reader = new FileReader();
@@ -66,10 +78,32 @@
     });
   }
 
+  function preventDefaults(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+  }
+  /**
+  *
+  * @param {HTMLElement} dropZone поле для перетаскивания файлов
+  * @param {Function} cb функция-callback
+  * @return {Function} onDropFiles функция-обработчик
+  */
+  function makeOnDropFiles(dropZone, cb) {
+    window.constants.DROP_EVENTS.forEach(function (eventName) {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    return function onDropFiles(evt) {
+      var data = evt.dataTransfer;
+
+      makeOnClickDropZone(data, cb)();
+    };
+  }
+
   window.dropZone = {
     createPhotoContainer: createPhotoContainer,
     createAvatarPhoto: createAvatarPhoto,
     makeOnClickDropZone: makeOnClickDropZone,
+    makeOnDropFiles: makeOnDropFiles,
     cleanPhotosContainer: cleanPhotosContainer,
     setDefaultAvatar: setDefaultAvatar,
   };
