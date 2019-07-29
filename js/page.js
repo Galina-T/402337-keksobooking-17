@@ -5,36 +5,36 @@
   var mapPinMain = document.querySelector('.map__pin--main');
   var adForm = document.querySelector('.ad-form');
 
-  var FormSelect = {
+  var formSelect = {
     typeSelect: adForm.querySelector('#type'),
     timeOfArrival: adForm.querySelector('#timein'),
     roomNumber: adForm.querySelector('#room_number'),
   };
 
-  var InputText = {
+  var inputText = {
     titleAd: adForm.querySelector('#title'),
     priceInput: adForm.querySelector('#price'),
     description: adForm.querySelector('#description'),
   };
 
-  var FilterSelect = {
+  var filterSelect = {
     housingType: document.querySelector('#housing-type'),
     housingPrice: document.querySelector('#housing-price'),
     housingRooms: document.querySelector('#housing-rooms'),
     housingGuests: document.querySelector('#housing-guests'),
   };
 
-  var HtmlCollection = {
+  var htmlCollection = {
     pins: document.getElementsByClassName('map__pin'),
     cards: document.getElementsByClassName('map__card'),
   };
 
-  var FeaturesInput = {
+  var featuresInput = {
     filterFeatures: document.querySelector('#housing-features'),
     formFeatures: adForm.querySelector('.features'),
   };
 
-  var PinMainOffset = {
+  var pinMainOffset = {
     left: window.constants.PIN_MAIN_LEFT,
     top: window.constants.PIN_MAIN_TOP,
   };
@@ -75,13 +75,13 @@
     window.dropZone.setDefaultAvatar();
     window.dropZone.cleanPhotosContainer();
 
-    window.util.applyToTheWholeObject(window.util.removeAds, HtmlCollection);
-    window.util.applyToTheWholeObject(window.form.eraseValueField, InputText);
-    window.util.applyToTheWholeObject(window.util.setupSelectedDefault, FormSelect);
-    window.util.applyToTheWholeObject(window.util.setupSelectedDefault, FilterSelect);
-    window.util.applyToTheWholeObject(window.util.setupCheckedDefault, FeaturesInput);
+    window.util.applyToTheWholeObject(window.util.removeAds, htmlCollection);
+    window.util.applyToTheWholeObject(window.form.eraseValueField, inputText);
+    window.util.applyToTheWholeObject(window.util.setupSelectedDefault, formSelect);
+    window.util.applyToTheWholeObject(window.util.setupSelectedDefault, filterSelect);
+    window.util.applyToTheWholeObject(window.util.setupCheckedDefault, featuresInput);
 
-    window.util.setPosition(mapPinMain, PinMainOffset.left, PinMainOffset.top);
+    window.util.setPosition(mapPinMain, pinMainOffset.left, pinMainOffset.top);
 
     window.filter.resetFilters(window.data.listAdsCopy);
 

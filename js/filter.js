@@ -28,7 +28,7 @@
 
   var mapPins = document.querySelector('.map__pins');
 
-  var HtmlCollection = {
+  var htmlCollection = {
     pins: document.getElementsByClassName('map__pin'),
     cards: document.getElementsByClassName('map__card'),
   };
@@ -109,7 +109,7 @@
   */
   function applyFilter(arr) {
     window.util.changeValueShow(arr, isDoesFilterValue);
-    window.util.applyToTheWholeObject(window.util.removeAds, HtmlCollection);
+    window.util.applyToTheWholeObject(window.util.removeAds, htmlCollection);
 
     var listAdsShow = window.util.getShowObjectSpecificLength(arr, window.constants.QUANTITY);
 

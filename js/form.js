@@ -2,7 +2,7 @@
 
 (function () {
 
-  var RoomsQuantToGuest = {
+  var roomsQuantToGuest = {
     1: [1],
     2: [1, 2],
     3: [1, 2, 3],
@@ -22,12 +22,12 @@
 
   var adForm = document.querySelector('.ad-form');
 
-  var FilesChooser = {
+  var filesChooser = {
     avatar: document.querySelector('.ad-form__field input[type=file]'),
     potos: document.querySelector('.ad-form__upload input[type=file]'),
   };
 
-  var DropZones = {
+  var dropZones = {
     avatar: document.querySelector('.ad-form-header__drop-zone'),
     potos: document.querySelector('.ad-form__drop-zone'),
   };
@@ -47,11 +47,11 @@
 
   var adFormReset = document.querySelector('.ad-form__reset');
 
-  var avatarChooser = makeChooser(FilesChooser.avatar, window.dropZone.createAvatarPhoto);
-  var photosChooser = makeChooser(FilesChooser.potos, window.dropZone.createPhotoContainer);
+  var avatarChooser = makeChooser(filesChooser.avatar, window.dropZone.createAvatarPhoto);
+  var photosChooser = makeChooser(filesChooser.potos, window.dropZone.createPhotoContainer);
 
-  var avatarDrop = makeDrop(DropZones.avatar, window.dropZone.createAvatarPhoto);
-  var photosDrop = makeDrop(DropZones.potos, window.dropZone.createPhotoContainer);
+  var avatarDrop = makeDrop(dropZones.avatar, window.dropZone.createAvatarPhoto);
+  var photosDrop = makeDrop(dropZones.potos, window.dropZone.createPhotoContainer);
 
   function makeFormsActive() {
     adForm.classList.remove('ad-form--disabled');
@@ -143,7 +143,7 @@
   */
   function setupGuestForRoomValidation(roomValue) {
     var roomsQuant = parseInt(roomValue, 10);
-    var options = RoomsQuantToGuest[roomsQuant];
+    var options = roomsQuantToGuest[roomsQuant];
 
     capacity.querySelectorAll('option').forEach(function (el) {
       var guest = parseInt(el.value, 10);
