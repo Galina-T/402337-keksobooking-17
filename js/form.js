@@ -27,6 +27,11 @@
     potos: document.querySelector('.ad-form__upload input[type=file]'),
   };
 
+  var dropZones = {
+    avatar: document.querySelector('.ad-form-header__drop-zone'),
+    potos: document.querySelector('.ad-form__drop-zone'),
+  };
+
   var adFormAddress = document.querySelector('#address');
   var typeSelect = document.querySelector('#type');
   var priceInput = document.querySelector('#price');
@@ -45,6 +50,9 @@
   var avatarChooser = makeChooser(filesChooser.avatar, window.dropZone.createAvatarPhoto);
   var photosChooser = makeChooser(filesChooser.potos, window.dropZone.createPhotoContainer);
 
+  var avatarDrop = makeDrop(dropZones.avatar, window.dropZone.createAvatarPhoto);
+  var photosDrop = makeDrop(dropZones.potos, window.dropZone.createPhotoContainer);
+
   function makeFormsActive() {
     adForm.classList.remove('ad-form--disabled');
     adForm.querySelectorAll('fieldset').forEach(function (el) {
@@ -59,6 +67,12 @@
     });
   }
 
+  /**
+  *
+  * @param {HTMLInputElement} fileChooser поле загрузки файлов
+  * @param {Function} cb функция-callback
+  * @return {object} объект с функциями для навешивания и удаления обработчика
+  */
   function makeChooser(fileChooser, cb) {
     var onClickDropZone = window.dropZone.makeOnClickDropZone(fileChooser, cb);
 
@@ -68,6 +82,25 @@
       },
       stop: function () {
         fileChooser.removeEventListener('change', onClickDropZone);
+      }
+    };
+  }
+
+  /**
+  *
+  * @param {HTMLInputElement} dropZone поле для перетаскивания файлов
+  * @param {Function} cb функция-callback
+  * @return {object} объект с функциями для навешивания и удаления обработчика
+  */
+  function makeDrop(dropZone, cb) {
+    var onDropFiles = window.dropZone.makeOnDropFiles(dropZone, cb);
+
+    return {
+      init: function () {
+        dropZone.addEventListener('drop', onDropFiles);
+      },
+      stop: function () {
+        dropZone.removeEventListener('drop', onDropFiles);
       }
     };
   }
@@ -252,6 +285,9 @@
     avatarChooser.init();
     photosChooser.init();
 
+    avatarDrop.init();
+    photosDrop.init();
+
     typeSelect.addEventListener('input', function (evt) {
       setupMinPriceForField('placeholder');
       setupMinPriceValidation(evt.target);
@@ -274,6 +310,9 @@
   function removeHandlersForm() {
     avatarChooser.stop();
     photosChooser.stop();
+
+    avatarDrop.stop();
+    photosDrop.stop();
 
     typeSelect.removeEventListener('input', function (evt) {
       setupMinPriceForField('placeholder');
