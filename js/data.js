@@ -2,7 +2,6 @@
 
 (function () {
   /**
-  *
   * @param {object[]} ads массив с данными
   */
   function loadData(ads) {
@@ -21,7 +20,6 @@
     };
   }
   /**
-  *
   * @param {string} errorMessage сообщение
   */
   function errorHandler(errorMessage) {

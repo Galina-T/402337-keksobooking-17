@@ -1,15 +1,39 @@
 'use strict';
 
 (function () {
-  var cityMap = document.querySelector('.map');
+  var mapPins = document.querySelector('.map__pins');
 
-  function makeCityMapActive() {
-    cityMap.classList.remove('map--faded');
+  var htmlCollection = {
+    pins: document.getElementsByClassName('map__pin'),
+    cards: document.getElementsByClassName('map__card'),
+  };
+
+  /**
+  * @param {HTMLElement} cityMap карта города
+  */
+  function makeCityMapActive(cityMap) {
+    cityMap.classList.remove(window.constants.CLASS_NAME_MAP_INACTIVE);
+  }
+  /**
+  * @param {HTMLElement} cityMap карта города
+  */
+  function makeCityMapInactive(cityMap) {
+    cityMap.classList.add(window.constants.CLASS_NAME_MAP_INACTIVE);
+  }
+  /**
+  * @param {object[]} data объект с данными
+  */
+  function renderAds(data) {
+    var listAdsShow = window.util.generateArrayOfObjectsToRender(data, window.constants.QUANTITY);
+
+    window.render.renderNodes(listAdsShow, window.pin.createPinNode, mapPins, addPinHandlers);
+    window.render.renderNodes(listAdsShow, window.card.createCardNode, mapPins);
   }
 
-  function makeCityMapInactive() {
-    cityMap.classList.add('map--faded');
+  function removeAds() {
+    return window.util.applyToTheWholeObject(window.util.removeElements, htmlCollection);
   }
+
   /**
   * @param {HTMLElement} pin метка
   * @return {HTMLElement} карточка
@@ -34,7 +58,6 @@
 
     document.addEventListener('keydown', onCardEscPress);
   }
-
   /**
   * @param {HTMLElement} cardActive активная карточка
   */
@@ -78,7 +101,6 @@
     }
   }
   /**
-  *
   * @param {KeyboardEvent} evt
   */
   function onCardEnterPress(evt) {
@@ -87,7 +109,6 @@
     }
   }
   /**
-  *
   * @param {KeyboardEvent} evt
   */
   function onCardEscPress(evt) {
@@ -106,8 +127,9 @@
 
 
   window.cityMap = {
-    addPinHandlers: addPinHandlers,
     makeCityMapActive: makeCityMapActive,
-    makeCityMapInactive: makeCityMapInactive
+    makeCityMapInactive: makeCityMapInactive,
+    renderAds: renderAds,
+    removeAds: removeAds,
   };
 })();

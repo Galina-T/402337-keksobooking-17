@@ -22,10 +22,9 @@ window.util = (function () {
     },
     /**
     * Удаляет объявления из DOM
-    *
     * @param {HTMLElement[]} arr массив элементов, которые хотим удалить
     */
-    removeAds: function (arr) {
+    removeElements: function (arr) {
       for (var i = arr.length - 1; i >= 0; i--) {
         if (arr[i].classList.contains('map__pin--main')) {
           return;
@@ -37,7 +36,6 @@ window.util = (function () {
     },
     /**
     * Устанавливает исходное значение
-    *
     * @param {HTMLElement} field поле формы
     */
     setupSelectedDefault: function (field) {
@@ -49,30 +47,27 @@ window.util = (function () {
     },
     /**
     * Устанавливает исходное значение
-    *
     * @param {HTMLElement} field поле формы
     */
     setupCheckedDefault: function (field) {
       field.querySelectorAll('input').forEach(function (el) {
-        el.checked = el.hasAttribute('checked') ? true : false;
+        el.checked = el.hasAttribute('checked');
       });
     },
     /**
     * Применяет функцию для всех параметров объекта
-    *
-    * @param {Function} fun функция, которую необходимо применить
+    * @param {Function} fn функция, которую необходимо применить
     * @param {object} obj нужный объект
     */
-    applyToTheWholeObject: function (fun, obj) {
+    applyToTheWholeObject: function (fn, obj) {
       for (var key in obj) {
         if (!obj.hasOwnProperty(obj[key])) {
-          fun(obj[key]);
+          fn(obj[key]);
         }
       }
     },
     /**
     * Записывает параметры в свойство style
-    *
     * @param {HTMLElement} el элемент, который хотим спозиционировать
     * @param {number} left отступ слева
     * @param {number} top отступ сверху
@@ -83,7 +78,6 @@ window.util = (function () {
     },
     /**
     * Изменяет значение у show
-    *
     * @param {object[]} arr массив, в котором содержатся данные
     * @param {Function} cb
     */
@@ -98,19 +92,17 @@ window.util = (function () {
     },
     /**
     * Создает массив данных нужной длины, для отрисовки
-    *
-    * @param {object[]} arr массив, в котором содержатся данные
+    * @param {object[]} data массив, в котором содержатся данные
     * @param {number} length необходимая длина
     * @return {object[]} массив нужной длины
     */
-    getShowObjectSpecificLength: function (arr, length) {
-      var showObject = arr.filter(function (ad) {
+    generateArrayOfObjectsToRender: function (data, length) {
+      var objectToRender = data.filter(function (ad) {
         return ad.show === true;
       });
-      return showObject.slice(0, length);
+      return objectToRender.slice(0, length);
     },
     /**
-    *
     * @param {*} data данные
     * @return {boolean} boolean
     */
@@ -122,6 +114,31 @@ window.util = (function () {
         return Object.keys(data).length === 0;
       }
       return data === '';
-    }
+    },
+    createSubscribers: function () {
+      var subscribers = [];
+
+      function addSubscriber(cb) {
+        subscribers.push(cb);
+
+        return function () {
+          subscribers = subscribers.filter(function (el) {
+            return el !== cb;
+          });
+        };
+      }
+
+      function send() {
+        var args = arguments;
+        subscribers.forEach(function (cb) {
+          cb.call(null, args);
+        });
+      }
+
+      return {
+        addSubscriber: addSubscriber,
+        send: send,
+      };
+    },
   };
 })();

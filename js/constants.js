@@ -13,9 +13,13 @@ window.constants = (function () {
     PIN_Y_MAX: 630,
     PIN_WIDTH: 50,
     PIN_HEIGHT: 70,
+    CLASS_NAME_MAP_INACTIVE: 'map--faded',
     QUANTITY: 5,
     ESC_KEYCODE: 27,
     ENTER_KEYCODE: 13,
+    SUCCESS_COD: 200,
+    TIMEOUT: 10000,
+    DEBOUNCE_INTERVAL: 500,
     TYPES: {
       palace: {
         name: 'Дворец',

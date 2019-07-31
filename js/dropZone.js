@@ -8,7 +8,6 @@
   var defaultAvatarImgSrc = preview.src;
 
   /**
-  *
   * @param {FileReader} reader instance класса FileReader
   * @return {Function} функция для создания контейнера с выбранной фотографией
   */
@@ -28,7 +27,6 @@
   }
 
   /**
-  *
   * @param {FileReader} reader instance класса FileReader
   * @return {Function} функция записи url выбранного аватара
   */
@@ -39,13 +37,12 @@
   }
 
   /**
-  *
   * @param {{files: array}} obj объект, содержащий файлы
   * @param {Function} cb функция-callback
-  * @return {Function} onClickDropZone функция-обработчик
+  * @return {Function} onDropZoneClick функция-обработчик
   */
-  function makeOnClickDropZone(obj, cb) {
-    return function onClickDropZone() {
+  function makeOnDropZoneClick(obj, cb) {
+    return function onDropZoneClick() {
       Array.prototype.map.call(obj.files, function (file) {
         var fileName = file.name.toLowerCase();
 
@@ -83,7 +80,6 @@
     evt.stopPropagation();
   }
   /**
-  *
   * @param {HTMLElement} dropZone поле для перетаскивания файлов
   * @param {Function} cb функция-callback
   * @return {Function} onDropFiles функция-обработчик
@@ -95,14 +91,14 @@
     return function onDropFiles(evt) {
       var data = evt.dataTransfer;
 
-      makeOnClickDropZone(data, cb)();
+      makeOnDropZoneClick(data, cb)();
     };
   }
 
   window.dropZone = {
     createPhotoContainer: createPhotoContainer,
     createAvatarPhoto: createAvatarPhoto,
-    makeOnClickDropZone: makeOnClickDropZone,
+    makeOnDropZoneClick: makeOnDropZoneClick,
     makeOnDropFiles: makeOnDropFiles,
     cleanPhotosContainer: cleanPhotosContainer,
     setDefaultAvatar: setDefaultAvatar,

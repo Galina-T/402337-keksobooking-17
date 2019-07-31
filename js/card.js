@@ -24,15 +24,14 @@
     .content
     .querySelector('.map__card');
 
-  var titlesRoom = ['комната', 'комнаты', 'комнат'];
-  var titlesGuest = ['гостя', 'гостей', 'гостей'];
+  var roomTitles = ['комната', 'комнаты', 'комнат'];
+  var guestTitles = ['гостя', 'гостей', 'гостей'];
   /**
   * создает объект с DOM Node елементами карточки объявления
-  *
   * @param {HTMLElement} node DOM Node карточки объвления
   * @return {object} объект с блоками
   */
-  function createCardNodeElements(node) {
+  function getCardElements(node) {
     return {
       avatar: node.querySelector('.popup__avatar'),
       title: node.querySelector('.popup__title'),
@@ -49,14 +48,12 @@
 
   /**
   * Скрывает DOM Node елемент карточки объявления
-  *
   * @param {HTMLElement} el DOM Node елемент карточки объвления
   */
   function hideElement(el) {
     el.setAttribute('style', 'display: none');
   }
   /**
-  *
   * @param {ad} ad объект объявления
   * @return {string} url аватара
   */
@@ -64,7 +61,6 @@
     return ad.author.avatar;
   }
   /**
-  *
   * @param {ad} ad объект объявления
   * @return {string} заголовок объявления
   */
@@ -72,7 +68,6 @@
     return ad.offer.title;
   }
   /**
-  *
   * @param {ad} ad объект объявления
   * @return {string} адрес
   */
@@ -80,7 +75,6 @@
     return ad.offer.address;
   }
   /**
-  *
   * @param {ad} ad объект объявления
   * @return {number} цена
   */
@@ -88,7 +82,6 @@
     return ad.offer.price + '₽/ночь';
   }
   /**
-  *
   * @param {ad} ad объект объявления
   * @return {string} тип жилья
   */
@@ -96,7 +89,6 @@
     return window.constants.TYPES[ad.offer.type].name;
   }
   /**
-  *
   * @param {ad} ad объект объявления
   * @return {string} описание
   */
@@ -104,7 +96,6 @@
     return ad.offer.description;
   }
   /**
-  *
   * @param {HTMLElement} el DOM Node блока карточки объвления
   * @param {string} elField поле, в которое записываются данные
   * @param {ad} ad объект объявления
@@ -119,7 +110,6 @@
     }
   }
   /**
-  *
   * @param {HTMLElement} el DOM Node блока карточки объвления
   * @param {object} data объект с данными для блока
   */
@@ -127,13 +117,12 @@
     if (window.util.isDataMissing(data.rooms) || window.util.isDataMissing(data.guests)) {
       hideElement(el);
     } else {
-      el.textContent = data.rooms + ' ' + window.util.getDeclinationForm(data.rooms, titlesRoom)
+      el.textContent = data.rooms + ' ' + window.util.getDeclinationForm(data.rooms, roomTitles)
           + ' для '
-          + data.guests + ' ' + window.util.getDeclinationForm(data.guests, titlesGuest);
+          + data.guests + ' ' + window.util.getDeclinationForm(data.guests, guestTitles);
     }
   }
   /**
-  *
   * @param {HTMLElement} el DOM Node блока карточки объвления
   * @param {object} data объект с данными для блока
   */
@@ -145,7 +134,6 @@
     }
   }
   /**
-  *
   * @param {HTMLElement} el DOM Node блока карточки объвления
   * @param {*} data данные для блока
   */
@@ -165,7 +153,6 @@
     }
   }
   /**
-  *
   * @param {HTMLElement} el DOM Node блока карточки объвления
   * @param {*} data данные для блока
   * @param {HTMLElement} img DOM Node children el
@@ -188,14 +175,13 @@
   }
   /**
   * Подготавливает DOM Node объект карточки объявления
-  *
   * @param {ad} ad объект объявления
   * @return {HTMLElement} DOM Node карточки объвления
   */
   function createCardNode(ad) {
     var cardNode = templateCard.cloneNode(true);
     var cardNodePhoto = cardNode.querySelector('.popup__photo');
-    var cardNodeElement = createCardNodeElements(cardNode);
+    var cardNodeElement = getCardElements(cardNode);
 
     fillElement(cardNodeElement.avatar, 'src', ad, getDataAvatar);
     fillElement(cardNodeElement.title, 'textContent', ad, getDataTitle);
