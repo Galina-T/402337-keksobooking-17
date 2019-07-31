@@ -19,7 +19,7 @@ window.constants = (function () {
     ENTER_KEYCODE: 13,
     SUCCESS_COD: 200,
     TIMEOUT: 10000,
-    DEBOUNCE_INTERVAL: 300,
+    DEBOUNCE_INTERVAL: 500,
     TYPES: {
       palace: {
         name: 'Дворец',

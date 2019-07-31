@@ -108,9 +108,9 @@
   function applyFilter(data) {
     window.util.changeValueShow(data, hasAllFiltersMatch);
 
-    window.cityMap.setupRemoveAds();
+    window.cityMap.removeAds();
 
-    window.cityMap.setupRenderAds(data);
+    window.cityMap.renderAds(data);
   }
 
   /**

@@ -114,6 +114,31 @@ window.util = (function () {
         return Object.keys(data).length === 0;
       }
       return data === '';
-    }
+    },
+    createSubscribers: function () {
+      var subscribers = [];
+
+      function addSubscriber(cb) {
+        subscribers.push(cb);
+
+        return function () {
+          subscribers = subscribers.filter(function (el) {
+            return el !== cb;
+          });
+        };
+      }
+
+      function send() {
+        var args = arguments;
+        subscribers.forEach(function (cb) {
+          cb.call(null, args);
+        });
+      }
+
+      return {
+        addSubscriber: addSubscriber,
+        send: send,
+      };
+    },
   };
 })();

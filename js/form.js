@@ -59,6 +59,8 @@
   var avatarDrop = makeDrop(dropZones.avatar, window.dropZone.createAvatarPhoto);
   var photosDrop = makeDrop(dropZones.potos, window.dropZone.createPhotoContainer);
 
+  var subscribe = window.util.createSubscribers();
+
   function makeFormsActive() {
     adForm.classList.remove('ad-form--disabled');
 
@@ -230,10 +232,10 @@
 
     evt.preventDefault();
 
-    window.page.stopPageWork();
-
     window.addEventListener('keydown', onResponseMessageEscPress);
     window.addEventListener('click', onResponseMessageClick);
+
+    subscribe.send();
   }
 
   /**
@@ -241,8 +243,10 @@
   */
   function onButtonResetFormClick(evt) {
     evt.preventDefault();
-    window.page.stopPageWork();
+
     evt.currentTarget.removeEventListener('click', onButtonResetFormClick);
+
+    subscribe.send();
   }
 
   /**
@@ -335,6 +339,7 @@
   }
 
   window.form = {
+    subscribe: subscribe,
     makeFormsActive: makeFormsActive,
     makeFormsInactive: makeFormsInactive,
     makeFormDefault: makeFormDefault,

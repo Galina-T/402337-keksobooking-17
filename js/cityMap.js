@@ -23,14 +23,14 @@
   /**
   * @param {object[]} data объект с данными
   */
-  function setupRenderAds(data) {
+  function renderAds(data) {
     var listAdsShow = window.util.generateArrayOfObjectsToRender(data, window.constants.QUANTITY);
 
     window.render.renderNodes(listAdsShow, window.pin.createPinNode, mapPins, addPinHandlers);
     window.render.renderNodes(listAdsShow, window.card.createCardNode, mapPins);
   }
 
-  function setupRemoveAds() {
+  function removeAds() {
     return window.util.applyToTheWholeObject(window.util.removeElements, htmlCollection);
   }
 
@@ -129,7 +129,7 @@
   window.cityMap = {
     makeCityMapActive: makeCityMapActive,
     makeCityMapInactive: makeCityMapInactive,
-    setupRenderAds: setupRenderAds,
-    setupRemoveAds: setupRemoveAds,
+    renderAds: renderAds,
+    removeAds: removeAds,
   };
 })();

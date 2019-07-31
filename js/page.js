@@ -35,7 +35,7 @@
 
     window.form.setupFormValidation();
 
-    window.cityMap.setupRenderAds(window.data.listAdsCopy);
+    window.cityMap.renderAds(window.data.listAdsCopy);
 
     window.form.addHandlersForm();
     window.filter.addHandlersFilters();
@@ -45,7 +45,7 @@
     window.dropZone.setDefaultAvatar();
     window.dropZone.cleanPhotosContainer();
 
-    window.cityMap.setupRemoveAds();
+    window.cityMap.removeAds();
 
     window.form.makeFormDefault();
 
@@ -58,6 +58,8 @@
     window.form.removeHandlersForm();
     window.filter.removeHandlersFilters();
   }
+
+  window.form.subscribe.addSubscriber(stopPageWork);
 
   window.page = {
     stopPageWork: stopPageWork,
