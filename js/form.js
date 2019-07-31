@@ -2,15 +2,12 @@
 
 (function () {
 
-  var roomsQuantToGuest = {
+  var RoomsQuantityToGuest = {
     1: [1],
     2: [1, 2],
     3: [1, 2, 3],
     100: [0],
   };
-
-  var main = document.querySelector('main');
-  var mapPinMain = document.querySelector('.map__pin--main');
 
   var templateSuccess = document.querySelector('#success')
     .content
@@ -20,7 +17,11 @@
     .content
     .querySelector('.error');
 
+  var main = document.querySelector('main');
+
   var adForm = document.querySelector('.ad-form');
+
+  var formFieldsets = adForm.querySelectorAll('fieldset');
 
   var filesChooser = {
     avatar: document.querySelector('.ad-form__field input[type=file]'),
@@ -32,18 +33,23 @@
     potos: document.querySelector('.ad-form__drop-zone'),
   };
 
-  var adFormAddress = document.querySelector('#address');
-  var typeSelect = document.querySelector('#type');
-  var priceInput = document.querySelector('#price');
+  var inputText = {
+    titleAd: adForm.querySelector('#title'),
+    adFormAddress: document.querySelector('#address'),
+    priceInput: adForm.querySelector('#price'),
+    description: adForm.querySelector('#description'),
+  };
 
-  var timeOfArrival = document.querySelector('#timein');
-  var checkOutTime = document.querySelector('#timeout');
+  var formSelect = {
+    housing: adForm.querySelector('#type'),
+    timeOfArrival: adForm.querySelector('#timein'),
+    checkOutTime: document.querySelector('#timeout'),
+    roomNumber: adForm.querySelector('#room_number'),
+    capacity: document.querySelector('#capacity'),
+  };
 
-  var roomNumber = document.querySelector('#room_number');
-  var capacity = document.querySelector('#capacity');
-
-  var features = document.querySelector('.features');
-  var inputFeatures = features.querySelectorAll('[name="features"]');
+  var formFeatures = document.querySelector('.features');
+  var inputFeatures = formFeatures.querySelectorAll('[name="features"]');
 
   var adFormReset = document.querySelector('.ad-form__reset');
 
@@ -55,39 +61,39 @@
 
   function makeFormsActive() {
     adForm.classList.remove('ad-form--disabled');
-    adForm.querySelectorAll('fieldset').forEach(function (el) {
+
+    formFieldsets.forEach(function (el) {
       el.removeAttribute('disabled');
     });
   }
 
   function makeFormsInactive() {
     adForm.classList.add('ad-form--disabled');
-    adForm.querySelectorAll('fieldset').forEach(function (el) {
+
+    formFieldsets.forEach(function (el) {
       el.setAttribute('disabled', 'disabled');
     });
   }
 
   /**
-  *
   * @param {HTMLInputElement} fileChooser поле загрузки файлов
   * @param {Function} cb функция-callback
   * @return {object} объект с функциями для навешивания и удаления обработчика
   */
   function makeChooser(fileChooser, cb) {
-    var onClickDropZone = window.dropZone.makeOnClickDropZone(fileChooser, cb);
+    var onDropZoneClick = window.dropZone.makeOnDropZoneClick(fileChooser, cb);
 
     return {
       init: function () {
-        fileChooser.addEventListener('change', onClickDropZone);
+        fileChooser.addEventListener('change', onDropZoneClick);
       },
       stop: function () {
-        fileChooser.removeEventListener('change', onClickDropZone);
+        fileChooser.removeEventListener('change', onDropZoneClick);
       }
     };
   }
 
   /**
-  *
   * @param {HTMLInputElement} dropZone поле для перетаскивания файлов
   * @param {Function} cb функция-callback
   * @return {object} объект с функциями для навешивания и удаления обработчика
@@ -110,7 +116,10 @@
   * @param {HTMLButtonElement} el метка, для которой заполняется адрес
   */
   function fillAddressFieldAdForm(el) {
-    adFormAddress.value = (el.offsetLeft + el.scrollWidth / 2) + ', ' + (el.offsetTop + el.scrollHeight);
+
+    inputText.adFormAddress.value = adForm.classList.contains('ad-form--disabled')
+      ? (el.offsetLeft + el.clientWidth / 2) + ', ' + (el.offsetTop + el.clientHeight)
+      : (el.offsetLeft + el.scrollWidth / 2) + ', ' + (el.offsetTop + el.scrollHeight);
   }
 
   /**
@@ -118,23 +127,23 @@
   * @param {string} property свойство, в которое записывается минимальная цена
   */
   function setupMinPriceForField(property) {
-    priceInput[property] = window.constants.TYPES[typeSelect.value].priceMin;
+    inputText.priceInput[property] = window.constants.TYPES[formSelect.housing.value].priceMin;
   }
   /**
   * Настраивает валидацию минимальной цены определенного типа жилья
   * @param {HTMLElement} field поле валидации
   */
   function setupMinPriceValidation(field) {
-    if (field === typeSelect) {
+    if (field === formSelect.housing) {
       setupMinPriceForField('min');
     }
-    var valueNumber = Number(priceInput.value);
-    var minNumber = Number(priceInput.min);
+    var valueNumber = Number(inputText.priceInput.value);
+    var minNumber = Number(inputText.priceInput.min);
     var message = valueNumber < minNumber
       ? ('минимальная цена за ночь ' + minNumber)
       : '';
 
-    priceInput.setCustomValidity(message);
+    inputText.priceInput.setCustomValidity(message);
   }
 
   /**
@@ -142,10 +151,10 @@
   * @param {string} roomValue
   */
   function setupGuestForRoomValidation(roomValue) {
-    var roomsQuant = parseInt(roomValue, 10);
-    var options = roomsQuantToGuest[roomsQuant];
+    var roomsQuantity = parseInt(roomValue, 10);
+    var options = RoomsQuantityToGuest[roomsQuantity];
 
-    capacity.querySelectorAll('option').forEach(function (el) {
+    formSelect.capacity.querySelectorAll('option').forEach(function (el) {
       var guest = parseInt(el.value, 10);
 
       if (options.indexOf(guest) === -1) {
@@ -158,30 +167,27 @@
 
   /**
   * Синхронизирует поля «Кол-во комнат» и «Кол-во мест»
-  *
   */
   function setupValueCapacity() {
-    capacity.value = roomNumber.value === '100'
+    formSelect.capacity.value = formSelect.roomNumber.value === '100'
       ? '0'
       : '1';
   }
 
   /**
   * Синхронизирует поля «Время заезда» и «Время выезда»
-  *
   * @param {HTMLElement} field выбранное пользователем поле
   */
   function setupValueFieldTime(field) {
-    var fieldSynch = field === timeOfArrival
-      ? checkOutTime
-      : timeOfArrival;
+    var fieldSynch = field === formSelect.timeOfArrival
+      ? formSelect.checkOutTime
+      : formSelect.timeOfArrival;
 
     fieldSynch.value = field.value;
   }
 
   /**
   * Стирает заполненное поле
-  *
   * @param {HTMLElement} field поле формы
   */
   function eraseValueField(field) {
@@ -189,7 +195,6 @@
   }
 
   /**
-  *
   * @param {Event} evt
   */
   function onFieldTimeClick(evt) {
@@ -197,7 +202,6 @@
   }
 
   /**
-  *
   * @param {Event} evt
   */
   function onFieldRoomClick(evt) {
@@ -215,11 +219,10 @@
   }
 
   /**
-  *
   * @param {Event} evt
   */
   function onButtonFormSubmit(evt) {
-    window.upload(new FormData(adForm), function () {
+    window.backend.upload(new FormData(adForm), function () {
       main.appendChild(templateSuccess.cloneNode(true));
     }, function () {
       main.appendChild(templateError.cloneNode(true));
@@ -234,7 +237,6 @@
   }
 
   /**
-  *
   * @param {Event} evt
   */
   function onButtonResetFormClick(evt) {
@@ -245,7 +247,6 @@
 
   /**
   * Функция-обработчик  при нажатии на сообщение об отправке данных
-  *
   * @param {Event} evt
   */
   function onResponseMessageClick(evt) {
@@ -256,25 +257,27 @@
     window.removeEventListener('click', onResponseMessageClick);
   }
   function onResponseMessageEscPress(evt) {
-    evt.preventDefault();
     if (evt.keyCode === window.constants.ESC_KEYCODE) {
-      var child = main.lastElementChild;
-      main.removeChild(child);
-      window.removeEventListener('keydown', onResponseMessageEscPress);
-      window.removeEventListener('click', onResponseMessageClick);
+      onResponseMessageClick(evt);
     }
   }
 
   function setupFormValidation() {
-    setupMinPriceValidation(typeSelect);
-    setupGuestForRoomValidation(roomNumber.value);
+    setupMinPriceValidation(formSelect.housing);
+    setupGuestForRoomValidation(formSelect.roomNumber.value);
   }
 
-  function synchFieldsForm() {
-    fillAddressFieldAdForm(mapPinMain);
+  function makeFormDefault() {
+    window.util.applyToTheWholeObject(eraseValueField, inputText);
+    window.util.applyToTheWholeObject(window.util.setupSelectedDefault, formSelect);
+    window.util.setupCheckedDefault(formFeatures);
+  }
+
+  function synchFieldsForm(pin) {
+    fillAddressFieldAdForm(pin);
     setupMinPriceForField('placeholder');
     setupValueCapacity();
-    setupValueFieldTime(timeOfArrival);
+    setupValueFieldTime(formSelect.timeOfArrival);
   }
 
   function addHandlersForm() {
@@ -288,19 +291,17 @@
     avatarDrop.init();
     photosDrop.init();
 
-    typeSelect.addEventListener('input', function (evt) {
+    inputText.priceInput.addEventListener('input', function (evt) {
+      setupMinPriceValidation(evt.target);
+    });
+
+    formSelect.housing.addEventListener('input', function (evt) {
       setupMinPriceForField('placeholder');
       setupMinPriceValidation(evt.target);
     });
-
-    priceInput.addEventListener('input', function (evt) {
-      setupMinPriceValidation(evt.target);
-    });
-
-    timeOfArrival.addEventListener('input', onFieldTimeClick);
-    checkOutTime.addEventListener('input', onFieldTimeClick);
-
-    roomNumber.addEventListener('input', onFieldRoomClick);
+    formSelect.timeOfArrival.addEventListener('input', onFieldTimeClick);
+    formSelect.checkOutTime.addEventListener('input', onFieldTimeClick);
+    formSelect.roomNumber.addEventListener('input', onFieldRoomClick);
 
     inputFeatures.forEach(function (el) {
       el.addEventListener('keydown', onFeaturesKeyDown);
@@ -314,19 +315,17 @@
     avatarDrop.stop();
     photosDrop.stop();
 
-    typeSelect.removeEventListener('input', function (evt) {
+    inputText.priceInput.removeEventListener('input', function (evt) {
+      setupMinPriceValidation(evt.target);
+    });
+
+    formSelect.housing.removeEventListener('input', function (evt) {
       setupMinPriceForField('placeholder');
       setupMinPriceValidation(evt.target);
     });
-
-    priceInput.removeEventListener('input', function (evt) {
-      setupMinPriceValidation(evt.target);
-    });
-
-    timeOfArrival.removeEventListener('input', onFieldTimeClick);
-    checkOutTime.removeEventListener('input', onFieldTimeClick);
-
-    roomNumber.removeEventListener('input', onFieldRoomClick);
+    formSelect.timeOfArrival.removeEventListener('input', onFieldTimeClick);
+    formSelect.checkOutTime.removeEventListener('input', onFieldTimeClick);
+    formSelect.roomNumber.removeEventListener('input', onFieldRoomClick);
 
     inputFeatures.forEach(function (el) {
       el.removeEventListener('keydown', onFeaturesKeyDown);
@@ -338,10 +337,10 @@
   window.form = {
     makeFormsActive: makeFormsActive,
     makeFormsInactive: makeFormsInactive,
+    makeFormDefault: makeFormDefault,
     setupFormValidation: setupFormValidation,
     synchFieldsForm: synchFieldsForm,
     fillAddressFieldAdForm: fillAddressFieldAdForm,
-    eraseValueField: eraseValueField,
     addHandlersForm: addHandlersForm,
     removeHandlersForm: removeHandlersForm,
   };
